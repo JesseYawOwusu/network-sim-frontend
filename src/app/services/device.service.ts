@@ -1,17 +1,18 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, interval, switchMap, startWith, catchError, of } from 'rxjs';
+import { Observable, interval, switchMap, startWith, catchError, of, Subscription } from 'rxjs';
 import { Device } from '../models/device.model';
 import { Connection } from '../models/connection.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DeviceService {
+export class DeviceService implements OnDestroy {
   private readonly devicesSignal = signal<Device[]>([]);
   private readonly connectionsSignal = signal<Connection[]>([]);
   private readonly loadingSignal = signal<boolean>(false);
   private readonly errorSignal = signal<string | null>(null);
+  private pollingSubscription?: Subscription;
 
   // Public readonly signals
   readonly devices = this.devicesSignal.asReadonly();
@@ -40,9 +41,15 @@ export class DeviceService {
     this.startPolling();
   }
 
+  ngOnDestroy(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
+  }
+
   private startPolling(): void {
     // Poll every 30 seconds as per requirements
-    interval(30000)
+    this.pollingSubscription = interval(30000)
       .pipe(
         startWith(0), // Start immediately
         switchMap(() => this.fetchDevices()),

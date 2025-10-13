@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceDisplayComponent } from './network-canvas/device-display/device-display';
 import { NetworkCanvasComponent } from './network-canvas/network-canvas';
 import { DeviceService } from './services/device.service';
 import { Device } from './models/device.model';
 import { Connection } from './models/connection.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -12,13 +13,15 @@ import { Connection } from './models/connection.model';
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   private deviceService = inject(DeviceService);
+  private destroyRef = inject(DestroyRef);
   private connectionsAdded = false;
+  private effectCleanup?: () => void;
 
   constructor() {
     // Watch for devices to be loaded, then add connections
-    effect(() => {
+    this.effectCleanup = effect(() => {
       const devices = this.deviceService.devices();
       if (devices.length > 0 && !this.connectionsAdded) {
         this.addSampleConnections();
@@ -30,6 +33,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Add some sample devices for testing
     this.addSampleDevices();
+  }
+
+  ngOnDestroy(): void {
+    if (this.effectCleanup) {
+      this.effectCleanup();
+    }
   }
 
   private addSampleDevices() {
