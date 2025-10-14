@@ -94,8 +94,8 @@ export class DeviceService implements OnDestroy {
             status: newStatus,
             pingRate: Math.max(1, device.pingRate + (Math.random() - 0.5) * 2),
             latency: Math.max(0, device.latency + (Math.random() - 0.5) * 1),
-            trafficLoad: Math.max(0, Math.min(100, device.trafficLoad + (Math.random() - 0.5) * 10)),
-            lastUpdated: new Date()
+            trafficLoad: Math.max(0, Math.min(100, device.trafficLoad + (Math.random() - 0.5) * 10))
+            // Don't update lastUpdated during simulation - only during user actions
           };
         });
 
