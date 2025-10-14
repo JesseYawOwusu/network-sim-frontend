@@ -16,7 +16,26 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar styling for device display section */
+.device-display-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.device-display-section::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.device-display-section::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.device-display-section::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .device-display-section h2 {
