@@ -36,6 +36,11 @@ export class DeviceDisplayComponent {
   readonly editingDeviceIp = signal('');
 
   toggleAddForm(): void {
+    // Cancel any active editing when toggling add form
+    if (this.editingDevice()) {
+      this.cancelEditing();
+    }
+    
     this.showAddForm.update(show => !show);
     if (!this.showAddForm()) {
       this.resetNewDevice();
@@ -43,6 +48,11 @@ export class DeviceDisplayComponent {
   }
 
   startEditing(device: Device): void {
+    // Close add form if it's open
+    if (this.showAddForm()) {
+      this.showAddForm.set(false);
+    }
+    
     this.editingDevice.set(device.id);
     this.editingDeviceName.set(device.name);
     this.editingDeviceType.set(device.type);

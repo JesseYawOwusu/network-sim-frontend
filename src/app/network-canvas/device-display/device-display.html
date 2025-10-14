@@ -2,12 +2,14 @@
   <!-- Header with Add Device Button -->
   <div class="device-header">
     <h3>Network Devices</h3>
-    <button 
-      class="btn btn-primary" 
-      (click)="toggleAddForm()"
-      [class.active]="showAddForm()">
-      {{ showAddForm() ? 'Cancel' : 'Add Device' }}
-    </button>
+    @if (!editingDevice()) {
+      <button 
+        class="btn btn-primary" 
+        (click)="toggleAddForm()"
+        [class.active]="showAddForm()">
+        {{ showAddForm() ? 'Cancel' : 'Add Device' }}
+      </button>
+    }
   </div>
 
   <!-- Add Device Form -->
