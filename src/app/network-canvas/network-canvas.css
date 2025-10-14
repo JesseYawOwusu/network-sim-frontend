@@ -11,6 +11,16 @@
   min-height: 600px;
 }
 
+/* Force hide scrollbar on canvas container */
+.canvas-container::-webkit-scrollbar {
+  display: none;
+}
+
+.canvas-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .canvas-spacer {
   flex: 1;
   min-height: 0;

@@ -57,6 +57,16 @@
   min-height: 700px;
 }
 
+/* Force hide scrollbar on network canvas section */
+.network-canvas-section::-webkit-scrollbar {
+  display: none;
+}
+
+.network-canvas-section {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .network-canvas-section h2 {
   margin-top: 0;
   color: #333;
@@ -70,6 +80,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Force hide scrollbar on network canvas container */
+.network-canvas-container::-webkit-scrollbar {
+  display: none;
+}
+
+.network-canvas-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @media (max-width: 768px) {
