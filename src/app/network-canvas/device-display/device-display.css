@@ -6,7 +6,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-height: 0;
 }
 
@@ -149,7 +148,6 @@
   overflow-y: auto;
   padding-right: 0.5rem;
   min-height: 0;
-  max-height: 100%;
 }
 
 /* Custom scrollbar styling */
