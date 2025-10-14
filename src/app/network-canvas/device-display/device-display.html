@@ -1,0 +1,156 @@
+<div class="device-display">
+  <!-- Header with Add Device Button -->
+  <div class="device-header">
+    <h3>Network Devices</h3>
+    <button 
+      class="btn btn-primary" 
+      (click)="toggleAddForm()"
+      [class.active]="showAddForm()">
+      {{ showAddForm() ? 'Cancel' : 'Add Device' }}
+    </button>
+  </div>
+
+  <!-- Add Device Form -->
+  @if (showAddForm()) {
+    <div class="add-device-form">
+      <h4>Add New Device</h4>
+      <div class="form-group">
+        <label for="deviceName">Name:</label>
+        <input 
+          id="deviceName"
+          type="text" 
+          [(ngModel)]="newDeviceName" 
+          placeholder="Device name"
+          class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="deviceIp">IP Address:</label>
+        <input 
+          id="deviceIp"
+          type="text" 
+          [(ngModel)]="newDeviceIp" 
+          placeholder="192.168.1.1"
+          class="form-control">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pingRate">Ping Rate (ms):</label>
+          <input 
+            id="pingRate"
+            type="number" 
+            [(ngModel)]="newDevicePingRate" 
+            min="1"
+            class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="latency">Latency (ms):</label>
+          <input 
+            id="latency"
+            type="number" 
+            [(ngModel)]="newDeviceLatency" 
+            min="0"
+            class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="trafficLoad">Traffic Load (%):</label>
+          <input 
+            id="trafficLoad"
+            type="number" 
+            [(ngModel)]="newDeviceTrafficLoad" 
+            min="0" 
+            max="100"
+            class="form-control">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-success" (click)="saveDevice()">Save Device</button>
+        <button class="btn btn-secondary" (click)="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">Loading devices...</div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  <!-- Device List -->
+  <div class="device-list">
+    @for (device of devices(); track device.id) {
+      <div class="device-card" [class]="getStatusClass(device.status)">
+        <div class="device-header">
+          <div class="device-info">
+            <h4>{{ device.name }}</h4>
+            <span class="device-ip">{{ device.ip }}</span>
+          </div>
+          <div class="device-status">
+            <span class="status-indicator" [class]="getStatusClass(device.status)">
+              {{ device.status | titlecase }}
+            </span>
+            <div class="device-actions">
+              @if (editingDevice() === device.id) {
+                <button class="btn btn-sm btn-success" (click)="updateDevice(device.id, { name: device.name })">
+                  Save
+                </button>
+                <button class="btn btn-sm btn-secondary" (click)="cancelEditing()">
+                  Cancel
+                </button>
+              } @else {
+                <button class="btn btn-sm btn-primary" (click)="startEditing(device)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteDevice(device.id)">
+                  Delete
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+        
+        <div class="device-parameters">
+          <div class="parameter">
+            <label>Ping Rate:</label>
+            <span>{{ device.pingRate }}ms</span>
+          </div>
+          <div class="parameter">
+            <label>Latency:</label>
+            <span>{{ device.latency }}ms</span>
+          </div>
+          <div class="parameter">
+            <label>Traffic Load:</label>
+            <span>{{ device.trafficLoad }}%</span>
+          </div>
+          <div class="parameter">
+            <label>Last Updated:</label>
+            <span>{{ device.lastUpdated | date:'short' }}</span>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="no-devices">
+        <p>No devices found. Add a device to get started!</p>
+      </div>
+    }
+  </div>
+
+  <!-- Summary -->
+  <div class="device-summary">
+    <div class="summary-item">
+      <span class="summary-label">Total Devices:</span>
+      <span class="summary-value">{{ devices().length }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Online:</span>
+      <span class="summary-value online">{{ onlineDevices().length }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Offline/Failed:</span>
+      <span class="summary-value offline">{{ offlineDevices().length }}</span>
+    </div>
+  </div>
+</div>

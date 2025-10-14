@@ -1,0 +1,12 @@
+<div class="canvas-container">
+  <canvas 
+    #networkCanvas 
+    width="800" 
+    height="500"
+    (click)="onCanvasClick($event)"
+    (mousemove)="onCanvasMouseMove($event)">
+  </canvas>
+  <div class="canvas-info">
+    <p>Click on devices or connections to view details. Green lines = active, yellow = inactive, red = failed. Blue dots show traffic flow.</p>
+  </div>
+</div>
