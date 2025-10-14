@@ -219,9 +219,10 @@
 .status-indicator {
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .status-indicator.status-online {
