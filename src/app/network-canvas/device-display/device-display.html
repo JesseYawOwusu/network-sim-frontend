@@ -85,8 +85,23 @@
       <div class="device-card" [class]="getStatusClass(device.status)">
         <div class="device-header">
           <div class="device-info">
-            <h4>{{ device.name }}</h4>
-            <span class="device-ip">{{ device.ip }}</span>
+            @if (editingDevice() === device.id) {
+              <div class="edit-form">
+                <input 
+                  type="text" 
+                  [(ngModel)]="editingDeviceName" 
+                  class="form-control edit-input"
+                  placeholder="Device name">
+                <input 
+                  type="text" 
+                  [(ngModel)]="editingDeviceIp" 
+                  class="form-control edit-input"
+                  placeholder="IP address">
+              </div>
+            } @else {
+              <h4>{{ device.name }}</h4>
+              <span class="device-ip">{{ device.ip }}</span>
+            }
           </div>
           <div class="device-status">
             <span class="status-indicator" [class]="getStatusClass(device.status)">
@@ -94,7 +109,7 @@
             </span>
             <div class="device-actions">
               @if (editingDevice() === device.id) {
-                <button class="btn btn-sm btn-success" (click)="updateDevice(device.id, { name: device.name })">
+                <button class="btn btn-sm btn-success" (click)="saveDeviceEdit(device.id)">
                   Save
                 </button>
                 <button class="btn btn-sm btn-secondary" (click)="cancelEditing()">

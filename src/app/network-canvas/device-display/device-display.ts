@@ -31,6 +31,10 @@ export class DeviceDisplayComponent {
   readonly newDevicePingRate = signal(10);
   readonly newDeviceLatency = signal(5);
   readonly newDeviceTrafficLoad = signal(0);
+  
+  // Editing signals
+  readonly editingDeviceName = signal('');
+  readonly editingDeviceIp = signal('');
 
   toggleAddForm(): void {
     this.showAddForm.update(show => !show);
@@ -41,10 +45,23 @@ export class DeviceDisplayComponent {
 
   startEditing(device: Device): void {
     this.editingDevice.set(device.id);
+    this.editingDeviceName.set(device.name);
+    this.editingDeviceIp.set(device.ip);
   }
 
   cancelEditing(): void {
     this.editingDevice.set(null);
+    this.editingDeviceName.set('');
+    this.editingDeviceIp.set('');
+  }
+
+  saveDeviceEdit(deviceId: string): void {
+    const name = this.editingDeviceName();
+    const ip = this.editingDeviceIp();
+    
+    if (name && ip) {
+      this.updateDevice(deviceId, { name, ip });
+    }
   }
 
   saveDevice(): void {
