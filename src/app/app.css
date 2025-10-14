@@ -53,23 +53,10 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  max-height: 600px;
+  overflow: visible;
+  min-height: 600px;
 }
 
-/* Force hide scrollbar on network canvas section */
-.network-canvas-section::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-.network-canvas-section {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-  overflow-x: hidden !important;
-  overflow-y: hidden !important;
-}
 
 .network-canvas-section h2 {
   margin-top: 0;
