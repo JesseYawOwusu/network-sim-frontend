@@ -181,6 +181,16 @@
   color: #333;
 }
 
+.device-type {
+  color: #007bff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #e3f2fd;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  margin-right: 0.5rem;
+}
+
 .device-ip {
   color: #666;
   font-size: 0.9rem;

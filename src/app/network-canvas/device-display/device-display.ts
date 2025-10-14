@@ -27,13 +27,12 @@ export class DeviceDisplayComponent {
   
   // Individual form field signals for two-way binding
   readonly newDeviceName = signal('');
+  readonly newDeviceType = signal('');
   readonly newDeviceIp = signal('');
-  readonly newDevicePingRate = signal(10);
-  readonly newDeviceLatency = signal(5);
-  readonly newDeviceTrafficLoad = signal(0);
   
   // Editing signals
   readonly editingDeviceName = signal('');
+  readonly editingDeviceType = signal('');
   readonly editingDeviceIp = signal('');
 
   toggleAddForm(): void {
@@ -46,35 +45,40 @@ export class DeviceDisplayComponent {
   startEditing(device: Device): void {
     this.editingDevice.set(device.id);
     this.editingDeviceName.set(device.name);
+    this.editingDeviceType.set(device.type);
     this.editingDeviceIp.set(device.ip);
   }
 
   cancelEditing(): void {
     this.editingDevice.set(null);
     this.editingDeviceName.set('');
+    this.editingDeviceType.set('');
     this.editingDeviceIp.set('');
   }
 
   saveDeviceEdit(deviceId: string): void {
     const name = this.editingDeviceName();
+    const type = this.editingDeviceType();
     const ip = this.editingDeviceIp();
     
-    if (name && ip) {
-      this.updateDevice(deviceId, { name, ip });
+    if (name && type && ip) {
+      this.updateDevice(deviceId, { name, type, ip });
     }
   }
 
   saveDevice(): void {
     const name = this.newDeviceName();
+    const type = this.newDeviceType();
     const ip = this.newDeviceIp();
     
-    if (name && ip) {
+    if (name && type && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
         name,
+        type,
         ip,
-        pingRate: this.newDevicePingRate(),
-        latency: this.newDeviceLatency(),
-        trafficLoad: this.newDeviceTrafficLoad(),
+        pingRate: Math.floor(Math.random() * 20) + 5, // Simulated: 5-25ms
+        latency: Math.floor(Math.random() * 15) + 1, // Simulated: 1-16ms
+        trafficLoad: Math.floor(Math.random() * 80) + 10, // Simulated: 10-90%
         position: { x: 100, y: 100 },
         status: 'online'
       };
@@ -110,12 +114,10 @@ export class DeviceDisplayComponent {
     }
   }
 
-  private resetNewDevice(): void {
+  private   resetNewDevice(): void {
     this.newDeviceName.set('');
+    this.newDeviceType.set('');
     this.newDeviceIp.set('');
-    this.newDevicePingRate.set(10);
-    this.newDeviceLatency.set(5);
-    this.newDeviceTrafficLoad.set(0);
   }
 
   getStatusClass(status: Device['status']): string {

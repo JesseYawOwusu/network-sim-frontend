@@ -63,6 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const sampleDevices: Omit<Device, 'id' | 'lastUpdated'>[] = [
       {
         name: 'Router A',
+        type: 'Router',
         ip: '192.168.1.1',
         status: 'online',
         pingRate: 5,
@@ -72,6 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       {
         name: 'Switch B',
+        type: 'Switch',
         ip: '192.168.1.2',
         status: 'offline',
         pingRate: 10,
@@ -81,6 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       {
         name: 'Server C',
+        type: 'Server',
         ip: '192.168.1.3',
         status: 'online',
         pingRate: 8,
@@ -90,6 +93,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       {
         name: 'Firewall D',
+        type: 'Firewall',
         ip: '192.168.1.4',
         status: 'failed',
         pingRate: 15,
@@ -99,6 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       {
         name: 'Load Balancer E',
+        type: 'Server',
         ip: '192.168.1.5',
         status: 'online',
         pingRate: 6,
