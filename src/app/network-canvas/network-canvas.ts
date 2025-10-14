@@ -130,10 +130,10 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   private setupCanvas() {
     if (!this.ctx) return;
     
-    // Set canvas size
+    // Set canvas size to match HTML template
     const canvas = this.ctx.canvas;
-    canvas.width = 800;
-    canvas.height = 500;
+    canvas.width = 600;
+    canvas.height = 400;
     
     console.log('Canvas setup complete:', canvas.width, 'x', canvas.height);
     
@@ -254,10 +254,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
       this.drawTrafficFlow(x1, y1, x2, y2, connection.trafficLoad, cp1x, cp1y, cp2x, cp2y);
     }
     
-    // Draw connection info in the middle of the line
-    if (easedProgress > 0.8) {
-      this.drawConnectionInfo(connection, x1, y1, x2, y2);
-    }
   }
 
   private drawAnimatedDashedLine(x1: number, y1: number, x2: number, y2: number, cp1x: number, cp1y: number, cp2x: number, cp2y: number, progress: number, lineWidth: number) {
@@ -353,23 +349,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private drawConnectionInfo(connection: Connection, x1: number, y1: number, x2: number, y2: number) {
-    if (!this.ctx) return;
-    
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    
-    // Draw latency info
-    this.ctx.fillStyle = '#333';
-    this.ctx.font = '9px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(`${connection.latency}ms`, midX, midY - 5);
-    
-    // Draw bandwidth info
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = '8px Arial';
-    this.ctx.fillText(`${connection.bandwidth}Mbps`, midX, midY + 8);
-  }
 
   private drawDevices() {
     if (!this.ctx) return;
