@@ -56,6 +56,16 @@
   overflow: hidden;
 }
 
+/* Ensure no scrollbar on network canvas section */
+.network-canvas-section::-webkit-scrollbar {
+  display: none;
+}
+
+.network-canvas-section {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .network-canvas-section h2 {
   margin-top: 0;
   color: #333;

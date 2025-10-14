@@ -2,12 +2,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 8px;
   height: 100%;
   overflow: hidden;
+}
+
+/* Ensure no scrollbar on canvas container */
+.canvas-container::-webkit-scrollbar {
+  display: none;
+}
+
+.canvas-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.canvas-spacer {
+  flex: 1;
+  min-height: 0;
 }
 
 canvas {
