@@ -132,8 +132,8 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     
     // Set canvas size to match HTML template
     const canvas = this.ctx.canvas;
-    canvas.width = 600;
-    canvas.height = 400;
+    canvas.width = 800;
+    canvas.height = 500;
     
     console.log('Canvas setup complete:', canvas.width, 'x', canvas.height);
     
