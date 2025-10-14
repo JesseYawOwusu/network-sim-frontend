@@ -54,16 +54,33 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
-/* Ensure no scrollbar on network canvas section */
+/* Completely hide scrollbar on network canvas section */
 .network-canvas-section::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .network-canvas-section {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+/* Hide scrollbars for all elements within network canvas section */
+.network-canvas-section *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.network-canvas-section * {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
 }
 
 .network-canvas-section h2 {
@@ -79,6 +96,21 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+}
+
+/* Ensure no scrollbar on network canvas container */
+.network-canvas-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.network-canvas-container {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
 }
 
 @media (max-width: 768px) {

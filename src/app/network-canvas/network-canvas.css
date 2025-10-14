@@ -8,16 +8,21 @@
   border-radius: 8px;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
-/* Ensure no scrollbar on canvas container */
+/* Completely hide scrollbar on canvas container */
 .canvas-container::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .canvas-container {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
 }
 
 .canvas-spacer {
