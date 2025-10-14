@@ -24,14 +24,13 @@ export class DeviceDisplayComponent {
   // Local state
   readonly showAddForm = signal(false);
   readonly editingDevice = signal<string | null>(null);
-  readonly newDevice = signal({
-    name: '',
-    ip: '',
-    pingRate: 10,
-    latency: 5,
-    trafficLoad: 0,
-    position: { x: 100, y: 100 }
-  });
+  
+  // Individual form field signals for two-way binding
+  readonly newDeviceName = signal('');
+  readonly newDeviceIp = signal('');
+  readonly newDevicePingRate = signal(10);
+  readonly newDeviceLatency = signal(5);
+  readonly newDeviceTrafficLoad = signal(0);
 
   toggleAddForm(): void {
     this.showAddForm.update(show => !show);
@@ -49,10 +48,17 @@ export class DeviceDisplayComponent {
   }
 
   saveDevice(): void {
-    const newDeviceData = this.newDevice();
-    if (newDeviceData.name && newDeviceData.ip) {
+    const name = this.newDeviceName();
+    const ip = this.newDeviceIp();
+    
+    if (name && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
-        ...newDeviceData,
+        name,
+        ip,
+        pingRate: this.newDevicePingRate(),
+        latency: this.newDeviceLatency(),
+        trafficLoad: this.newDeviceTrafficLoad(),
+        position: { x: 100, y: 100 },
         status: 'online'
       };
       
@@ -88,14 +94,11 @@ export class DeviceDisplayComponent {
   }
 
   private resetNewDevice(): void {
-    this.newDevice.set({
-      name: '',
-      ip: '',
-      pingRate: 10,
-      latency: 5,
-      trafficLoad: 0,
-      position: { x: 100, y: 100 }
-    });
+    this.newDeviceName.set('');
+    this.newDeviceIp.set('');
+    this.newDevicePingRate.set(10);
+    this.newDeviceLatency.set(5);
+    this.newDeviceTrafficLoad.set(0);
   }
 
   getStatusClass(status: Device['status']): string {

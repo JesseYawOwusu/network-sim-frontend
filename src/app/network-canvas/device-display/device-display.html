@@ -19,7 +19,7 @@
         <input 
           id="deviceName"
           type="text" 
-          [(ngModel)]="newDevice().name" 
+          [(ngModel)]="newDeviceName" 
           placeholder="Device name"
           class="form-control">
       </div>
@@ -28,7 +28,7 @@
         <input 
           id="deviceIp"
           type="text" 
-          [(ngModel)]="newDevice().ip" 
+          [(ngModel)]="newDeviceIp" 
           placeholder="192.168.1.1"
           class="form-control">
       </div>
@@ -38,7 +38,7 @@
           <input 
             id="pingRate"
             type="number" 
-            [(ngModel)]="newDevice().pingRate" 
+            [(ngModel)]="newDevicePingRate" 
             min="1"
             class="form-control">
         </div>
@@ -47,7 +47,7 @@
           <input 
             id="latency"
             type="number" 
-            [(ngModel)]="newDevice().latency" 
+            [(ngModel)]="newDeviceLatency" 
             min="0"
             class="form-control">
         </div>
@@ -56,7 +56,7 @@
           <input 
             id="trafficLoad"
             type="number" 
-            [(ngModel)]="newDevice().trafficLoad" 
+            [(ngModel)]="newDeviceTrafficLoad" 
             min="0" 
             max="100"
             class="form-control">
