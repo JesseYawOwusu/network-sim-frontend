@@ -647,3 +647,4 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     console.log('Canvas redrawn - devices:', this.devices().length, 'connections:', this.connections().length);
   }
 }
+

@@ -29,11 +29,17 @@ export class DeviceDisplayComponent {
   readonly newDeviceName = signal('');
   readonly newDeviceType = signal('');
   readonly newDeviceIp = signal('');
+  readonly newDevicePingRate = signal(10);
+  readonly newDeviceLatency = signal(5);
+  readonly newDeviceTrafficLoad = signal(25);
   
   // Editing signals
   readonly editingDeviceName = signal('');
   readonly editingDeviceType = signal('');
   readonly editingDeviceIp = signal('');
+  readonly editingDevicePingRate = signal(10);
+  readonly editingDeviceLatency = signal(5);
+  readonly editingDeviceTrafficLoad = signal(25);
 
   toggleAddForm(): void {
     // Cancel any active editing when toggling add form
@@ -57,6 +63,9 @@ export class DeviceDisplayComponent {
     this.editingDeviceName.set(device.name);
     this.editingDeviceType.set(device.type);
     this.editingDeviceIp.set(device.ip);
+    this.editingDevicePingRate.set(device.pingRate);
+    this.editingDeviceLatency.set(device.latency);
+    this.editingDeviceTrafficLoad.set(device.trafficLoad);
   }
 
   cancelEditing(): void {
@@ -64,15 +73,28 @@ export class DeviceDisplayComponent {
     this.editingDeviceName.set('');
     this.editingDeviceType.set('');
     this.editingDeviceIp.set('');
+    this.editingDevicePingRate.set(10);
+    this.editingDeviceLatency.set(5);
+    this.editingDeviceTrafficLoad.set(25);
   }
 
   saveDeviceEdit(deviceId: string): void {
     const name = this.editingDeviceName();
     const type = this.editingDeviceType();
     const ip = this.editingDeviceIp();
+    const pingRate = this.editingDevicePingRate();
+    const latency = this.editingDeviceLatency();
+    const trafficLoad = this.editingDeviceTrafficLoad();
     
     if (name && type && ip) {
-      this.updateDevice(deviceId, { name, type, ip });
+      this.updateDevice(deviceId, { 
+        name, 
+        type, 
+        ip, 
+        pingRate, 
+        latency, 
+        trafficLoad 
+      });
     }
   }
 
@@ -80,15 +102,18 @@ export class DeviceDisplayComponent {
     const name = this.newDeviceName();
     const type = this.newDeviceType();
     const ip = this.newDeviceIp();
+    const pingRate = this.newDevicePingRate();
+    const latency = this.newDeviceLatency();
+    const trafficLoad = this.newDeviceTrafficLoad();
     
     if (name && type && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
         name,
         type,
         ip,
-        pingRate: Math.floor(Math.random() * 20) + 5, // Simulated: 5-25ms
-        latency: Math.floor(Math.random() * 15) + 1, // Simulated: 1-16ms
-        trafficLoad: Math.floor(Math.random() * 80) + 10, // Simulated: 10-90%
+        pingRate,
+        latency,
+        trafficLoad,
         position: { x: 100, y: 100 },
         status: 'online'
       };
@@ -124,11 +149,15 @@ export class DeviceDisplayComponent {
     }
   }
 
-  private   resetNewDevice(): void {
+  private resetNewDevice(): void {
     this.newDeviceName.set('');
     this.newDeviceType.set('');
     this.newDeviceIp.set('');
+    this.newDevicePingRate.set(10);
+    this.newDeviceLatency.set(5);
+    this.newDeviceTrafficLoad.set(25);
   }
+
 
   getStatusClass(status: Device['status']): string {
     switch (status) {

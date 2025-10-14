@@ -2,12 +2,11 @@
   <!-- Header with Add Device Button -->
   <div class="device-header">
     <h3>Network Devices</h3>
-    @if (!editingDevice()) {
+    @if (!editingDevice() && !showAddForm()) {
       <button 
         class="btn btn-primary" 
-        (click)="toggleAddForm()"
-        [class.active]="showAddForm()">
-        {{ showAddForm() ? 'Cancel' : 'Add Device' }}
+        (click)="toggleAddForm()">
+        Add Device
       </button>
     }
   </div>
@@ -49,6 +48,41 @@
           placeholder="192.168.1.1"
           class="form-control">
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="devicePingRate">Ping Rate (ms):</label>
+          <input 
+            id="devicePingRate"
+            type="number" 
+            [(ngModel)]="newDevicePingRate" 
+            placeholder="10"
+            min="1"
+            max="1000"
+            class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="deviceLatency">Latency (ms):</label>
+          <input 
+            id="deviceLatency"
+            type="number" 
+            [(ngModel)]="newDeviceLatency" 
+            placeholder="5"
+            min="0"
+            max="500"
+            class="form-control">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="deviceTrafficLoad">Traffic Load (%):</label>
+        <input 
+          id="deviceTrafficLoad"
+          type="number" 
+          [(ngModel)]="newDeviceTrafficLoad" 
+          placeholder="25"
+          min="0"
+          max="100"
+          class="form-control">
+      </div>
       <div class="form-actions">
         <button class="btn btn-success" (click)="saveDevice()">Save Device</button>
         <button class="btn btn-secondary" (click)="toggleAddForm()">Cancel</button>
@@ -74,27 +108,74 @@
           <div class="device-info">
             @if (editingDevice() === device.id) {
               <div class="edit-form">
-                <input 
-                  type="text" 
-                  [(ngModel)]="editingDeviceName" 
-                  class="form-control edit-input"
-                  placeholder="Device name">
-                <select 
-                  [(ngModel)]="editingDeviceType" 
-                  class="form-control edit-input">
-                  <option value="">Select device type</option>
-                  <option value="Router">Router</option>
-                  <option value="Switch">Switch</option>
-                  <option value="Server">Server</option>
-                  <option value="Workstation">Workstation</option>
-                  <option value="Firewall">Firewall</option>
-                  <option value="Access Point">Access Point</option>
-                </select>
-                <input 
-                  type="text" 
-                  [(ngModel)]="editingDeviceIp" 
-                  class="form-control edit-input"
-                  placeholder="IP address">
+                <div class="form-group">
+                  <label for="editDeviceName">Name:</label>
+                  <input 
+                    id="editDeviceName"
+                    type="text" 
+                    [(ngModel)]="editingDeviceName" 
+                    class="form-control edit-input"
+                    placeholder="Device name">
+                </div>
+                <div class="form-group">
+                  <label for="editDeviceType">Type:</label>
+                  <select 
+                    id="editDeviceType"
+                    [(ngModel)]="editingDeviceType" 
+                    class="form-control edit-input">
+                    <option value="">Select device type</option>
+                    <option value="Router">Router</option>
+                    <option value="Switch">Switch</option>
+                    <option value="Server">Server</option>
+                    <option value="Workstation">Workstation</option>
+                    <option value="Firewall">Firewall</option>
+                    <option value="Access Point">Access Point</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="editDeviceIp">IP Address:</label>
+                  <input 
+                    id="editDeviceIp"
+                    type="text" 
+                    [(ngModel)]="editingDeviceIp" 
+                    class="form-control edit-input"
+                    placeholder="192.168.1.1">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="editDevicePingRate">Ping Rate (ms):</label>
+                    <input 
+                      id="editDevicePingRate"
+                      type="number" 
+                      [(ngModel)]="editingDevicePingRate" 
+                      class="form-control edit-input"
+                      placeholder="10"
+                      min="1"
+                      max="1000">
+                  </div>
+                  <div class="form-group">
+                    <label for="editDeviceLatency">Latency (ms):</label>
+                    <input 
+                      id="editDeviceLatency"
+                      type="number" 
+                      [(ngModel)]="editingDeviceLatency" 
+                      class="form-control edit-input"
+                      placeholder="5"
+                      min="0"
+                      max="500">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="editDeviceTrafficLoad">Traffic Load (%):</label>
+                  <input 
+                    id="editDeviceTrafficLoad"
+                    type="number" 
+                    [(ngModel)]="editingDeviceTrafficLoad" 
+                    class="form-control edit-input"
+                    placeholder="25"
+                    min="0"
+                    max="100">
+                </div>
               </div>
             } @else {
               <h4>{{ device.name }}</h4>

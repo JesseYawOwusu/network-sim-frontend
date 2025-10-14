@@ -103,7 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       {
         name: 'Load Balancer E',
-        type: 'Server',
+        type: 'Load Balancer',
         ip: '192.168.1.5',
         status: 'online',
         pingRate: 6,

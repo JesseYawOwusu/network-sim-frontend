@@ -1,0 +1,44 @@
+[1mdiff --git a/src/app/app.css b/src/app/app.css[m
+[1mindex c7d254c..f6339d1 100644[m
+[1m--- a/src/app/app.css[m
+[1m+++ b/src/app/app.css[m
+[36m@@ -1,20 +1,19 @@[m
+ .app-container {[m
+   display: grid;[m
+   grid-template-columns: 1fr 2fr;[m
+[31m-  gap: 2rem;[m
+[31m-  padding: 2rem;[m
+[31m-  min-height: 100vh;[m
+[32m+[m[32m  gap: 1rem;[m
+[32m+[m[32m  padding: 1rem;[m
+[32m+[m[32m  height: 100vh;[m
+   background: #f5f5f5;[m
+[31m-  overflow: visible;[m
+[32m+[m[32m  overflow: hidden;[m
+ }[m
+ [m
+ .device-display-section {[m
+   background: white;[m
+   border-radius: 8px;[m
+[31m-  padding: 1.5rem;[m
+[32m+[m[32m  padding: 1rem;[m
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);[m
+[31m-  height: 100vh;[m
+[31m-  max-height: 100vh;[m
+[32m+[m[32m  height: 100%;[m
+   display: flex;[m
+   flex-direction: column;[m
+   overflow-y: auto;[m
+[36m@@ -49,10 +48,9 @@[m
+ .network-canvas-section {[m
+   background: white;[m
+   border-radius: 8px;[m
+[31m-  padding: 1.5rem;[m
+[32m+[m[32m  padding: 1rem;[m
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);[m
+[31m-  height: 100vh;[m
+[31m-  max-height: 100vh;[m
+[32m+[m[32m  height: 100%;[m
+   display: flex;[m
+   flex-direction: column;[m
+   overflow: hidden;[m
