@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy, effect, DestroyRef, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceDisplayComponent } from './network-canvas/device-display/device-display';
 import { NetworkCanvasComponent } from './network-canvas/network-canvas';
@@ -17,15 +17,23 @@ export class AppComponent implements OnInit, OnDestroy {
   private deviceService = inject(DeviceService);
   private destroyRef = inject(DestroyRef);
   private connectionsAdded = false;
-  private effectCleanup?: () => void;
+  private effectRef?: EffectRef;
 
   constructor() {
     // Watch for devices to be loaded, then add connections
-    this.effectCleanup = effect(() => {
+    this.effectRef = effect(() => {
       const devices = this.deviceService.devices();
-      if (devices.length > 0 && !this.connectionsAdded) {
+      const connections = this.deviceService.connections();
+      
+      // Add connections if we have devices but no connections yet
+      if (devices.length > 0 && connections.length === 0 && !this.connectionsAdded) {
         this.addSampleConnections();
         this.connectionsAdded = true;
+      }
+      
+      // Reset flag if devices are cleared (for testing/reloading scenarios)
+      if (devices.length === 0) {
+        this.connectionsAdded = false;
       }
     });
   }
@@ -35,9 +43,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.addSampleDevices();
   }
 
+  // Method to reset connections (useful for testing or when devices are reloaded)
+  resetConnections(): void {
+    this.connectionsAdded = false;
+    // Clear existing connections
+    const connections = this.deviceService.connections();
+    connections.forEach(connection => {
+      this.deviceService.removeConnectionLocally(connection.id);
+    });
+  }
+
   ngOnDestroy(): void {
-    if (this.effectCleanup) {
-      this.effectCleanup();
+    if (this.effectRef) {
+      this.effectRef.destroy();
     }
   }
 
