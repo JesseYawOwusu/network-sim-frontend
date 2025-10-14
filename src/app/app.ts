@@ -107,23 +107,35 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     // Create connections between devices to simulate a network topology
-    const connections: Connection[] = [
-      // Router A connects to Switch B and Server C
-      this.deviceService.createConnectionBetweenDevices(devices[0].id, devices[1].id),
-      this.deviceService.createConnectionBetweenDevices(devices[0].id, devices[2].id),
-      
-      // Switch B connects to Firewall D
-      this.deviceService.createConnectionBetweenDevices(devices[1].id, devices[3].id),
-      
-      // Server C connects to Load Balancer E
-      this.deviceService.createConnectionBetweenDevices(devices[2].id, devices[4].id),
-      
-      // Firewall D connects to Load Balancer E
-      this.deviceService.createConnectionBetweenDevices(devices[3].id, devices[4].id),
-      
-      // Bidirectional connections for redundancy
-      this.deviceService.createConnectionBetweenDevices(devices[1].id, devices[2].id),
-    ];
+    const connections: Connection[] = [];
+    
+    // Router A (index 0) connects to Switch B (index 1) and Server C (index 2)
+    if (devices.length > 1) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[0].id, devices[1].id));
+    }
+    if (devices.length > 2) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[0].id, devices[2].id));
+    }
+    
+    // Switch B (index 1) connects to Firewall D (index 3)
+    if (devices.length > 3) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[1].id, devices[3].id));
+    }
+    
+    // Server C (index 2) connects to Load Balancer E (index 4)
+    if (devices.length > 4) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[2].id, devices[4].id));
+    }
+    
+    // Firewall D (index 3) connects to Load Balancer E (index 4)
+    if (devices.length > 4) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[3].id, devices[4].id));
+    }
+    
+    // Bidirectional connections for redundancy (Switch B to Server C)
+    if (devices.length > 2) {
+      connections.push(this.deviceService.createConnectionBetweenDevices(devices[1].id, devices[2].id));
+    }
     
     connections.forEach(connection => {
       this.deviceService.addConnectionLocally(connection);
