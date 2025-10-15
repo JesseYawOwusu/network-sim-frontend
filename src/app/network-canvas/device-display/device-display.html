@@ -31,12 +31,9 @@
           [(ngModel)]="newDeviceType" 
           class="form-control">
           <option value="">Select device type</option>
-          <option value="Router">Router</option>
-          <option value="Switch">Switch</option>
-          <option value="Server">Server</option>
-          <option value="Workstation">Workstation</option>
-          <option value="Firewall">Firewall</option>
-          <option value="Access Point">Access Point</option>
+          @for (deviceType of deviceTypes; track deviceType) {
+            <option [value]="deviceType">{{ deviceType }}</option>
+          }
         </select>
       </div>
       <div class="form-group">
@@ -124,12 +121,9 @@
                     [(ngModel)]="editingDeviceType" 
                     class="form-control edit-input">
                     <option value="">Select device type</option>
-                    <option value="Router">Router</option>
-                    <option value="Switch">Switch</option>
-                    <option value="Server">Server</option>
-                    <option value="Workstation">Workstation</option>
-                    <option value="Firewall">Firewall</option>
-                    <option value="Access Point">Access Point</option>
+                    @for (deviceType of deviceTypes; track deviceType) {
+                      <option [value]="deviceType">{{ deviceType }}</option>
+                    }
                   </select>
                 </div>
                 <div class="form-group">

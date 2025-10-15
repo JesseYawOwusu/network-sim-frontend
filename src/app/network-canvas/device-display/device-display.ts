@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DeviceService } from '../../services/device.service';
-import { Device } from '../../models/device.model';
+import { Device, DeviceType } from '../../models/device.model';
 
 @Component({
   selector: 'app-device-display',
@@ -27,7 +27,7 @@ export class DeviceDisplayComponent {
   
   // Individual form field signals for two-way binding
   readonly newDeviceName = signal('');
-  readonly newDeviceType = signal('');
+  readonly newDeviceType = signal<DeviceType | ''>('');
   readonly newDeviceIp = signal('');
   readonly newDevicePingRate = signal(10);
   readonly newDeviceLatency = signal(5);
@@ -35,11 +35,16 @@ export class DeviceDisplayComponent {
   
   // Editing signals
   readonly editingDeviceName = signal('');
-  readonly editingDeviceType = signal('');
+  readonly editingDeviceType = signal<DeviceType | ''>('');
   readonly editingDeviceIp = signal('');
   readonly editingDevicePingRate = signal(10);
   readonly editingDeviceLatency = signal(5);
   readonly editingDeviceTrafficLoad = signal(25);
+
+  // Available device types for forms
+  readonly deviceTypes: DeviceType[] = [
+    'Router', 'Switch', 'Server', 'Workstation', 'Firewall', 'Access Point', 'Load Balancer'
+  ];
 
   toggleAddForm(): void {
     // Cancel any active editing when toggling add form
@@ -89,7 +94,7 @@ export class DeviceDisplayComponent {
     if (name && type && ip) {
       this.updateDevice(deviceId, { 
         name, 
-        type, 
+        type: type as DeviceType, 
         ip, 
         pingRate, 
         latency, 
@@ -109,7 +114,7 @@ export class DeviceDisplayComponent {
     if (name && type && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
         name,
-        type,
+        type: type as DeviceType,
         ip,
         pingRate,
         latency,
