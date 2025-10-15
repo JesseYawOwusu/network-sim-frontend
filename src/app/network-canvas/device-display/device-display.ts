@@ -25,26 +25,52 @@ export class DeviceDisplayComponent {
   readonly showAddForm = signal(false);
   readonly editingDevice = signal<string | null>(null);
   
-  // Individual form field signals for two-way binding
-  readonly newDeviceName = signal('');
-  readonly newDeviceType = signal<DeviceType | ''>('');
-  readonly newDeviceIp = signal('');
-  readonly newDevicePingRate = signal(10);
-  readonly newDeviceLatency = signal(5);
-  readonly newDeviceTrafficLoad = signal(25);
+  // Form state management using single object signals
+  readonly newDeviceForm = signal<{
+    name: string;
+    type: DeviceType | '';
+    ip: string;
+    pingRate: number;
+    latency: number;
+    trafficLoad: number;
+  }>({
+    name: '',
+    type: '',
+    ip: '',
+    pingRate: 10,
+    latency: 5,
+    trafficLoad: 25
+  });
   
-  // Editing signals
-  readonly editingDeviceName = signal('');
-  readonly editingDeviceType = signal<DeviceType | ''>('');
-  readonly editingDeviceIp = signal('');
-  readonly editingDevicePingRate = signal(10);
-  readonly editingDeviceLatency = signal(5);
-  readonly editingDeviceTrafficLoad = signal(25);
+  readonly editDeviceForm = signal<{
+    name: string;
+    type: DeviceType | '';
+    ip: string;
+    pingRate: number;
+    latency: number;
+    trafficLoad: number;
+  }>({
+    name: '',
+    type: '',
+    ip: '',
+    pingRate: 10,
+    latency: 5,
+    trafficLoad: 25
+  });
 
   // Available device types for forms
   readonly deviceTypes: DeviceType[] = [
     'Router', 'Switch', 'Server', 'Workstation', 'Firewall', 'Access Point', 'Load Balancer'
   ];
+
+  // Helper methods for form field updates
+  updateNewDeviceForm(field: keyof ReturnType<typeof this.newDeviceForm>, value: any): void {
+    this.newDeviceForm.update(form => ({ ...form, [field]: value }));
+  }
+
+  updateEditDeviceForm(field: keyof ReturnType<typeof this.editDeviceForm>, value: any): void {
+    this.editDeviceForm.update(form => ({ ...form, [field]: value }));
+  }
 
   toggleAddForm(): void {
     // Cancel any active editing when toggling add form
@@ -54,7 +80,7 @@ export class DeviceDisplayComponent {
     
     this.showAddForm.update(show => !show);
     if (!this.showAddForm()) {
-      this.resetNewDevice();
+      this.resetNewDeviceForm();
     }
   }
 
@@ -65,31 +91,24 @@ export class DeviceDisplayComponent {
     }
     
     this.editingDevice.set(device.id);
-    this.editingDeviceName.set(device.name);
-    this.editingDeviceType.set(device.type);
-    this.editingDeviceIp.set(device.ip);
-    this.editingDevicePingRate.set(device.pingRate);
-    this.editingDeviceLatency.set(device.latency);
-    this.editingDeviceTrafficLoad.set(device.trafficLoad);
+    this.editDeviceForm.set({
+      name: device.name,
+      type: device.type,
+      ip: device.ip,
+      pingRate: device.pingRate,
+      latency: device.latency,
+      trafficLoad: device.trafficLoad
+    });
   }
 
   cancelEditing(): void {
     this.editingDevice.set(null);
-    this.editingDeviceName.set('');
-    this.editingDeviceType.set('');
-    this.editingDeviceIp.set('');
-    this.editingDevicePingRate.set(10);
-    this.editingDeviceLatency.set(5);
-    this.editingDeviceTrafficLoad.set(25);
+    this.resetEditDeviceForm();
   }
 
   saveDeviceEdit(deviceId: string): void {
-    const name = this.editingDeviceName();
-    const type = this.editingDeviceType();
-    const ip = this.editingDeviceIp();
-    const pingRate = this.editingDevicePingRate();
-    const latency = this.editingDeviceLatency();
-    const trafficLoad = this.editingDeviceTrafficLoad();
+    const form = this.editDeviceForm();
+    const { name, type, ip, pingRate, latency, trafficLoad } = form;
     
     if (name && type && ip) {
       this.updateDevice(deviceId, { 
@@ -104,12 +123,8 @@ export class DeviceDisplayComponent {
   }
 
   saveDevice(): void {
-    const name = this.newDeviceName();
-    const type = this.newDeviceType();
-    const ip = this.newDeviceIp();
-    const pingRate = this.newDevicePingRate();
-    const latency = this.newDeviceLatency();
-    const trafficLoad = this.newDeviceTrafficLoad();
+    const form = this.newDeviceForm();
+    const { name, type, ip, pingRate, latency, trafficLoad } = form;
     
     if (name && type && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
@@ -160,13 +175,26 @@ export class DeviceDisplayComponent {
     }
   }
 
-  private resetNewDevice(): void {
-    this.newDeviceName.set('');
-    this.newDeviceType.set('');
-    this.newDeviceIp.set('');
-    this.newDevicePingRate.set(10);
-    this.newDeviceLatency.set(5);
-    this.newDeviceTrafficLoad.set(25);
+  private resetNewDeviceForm(): void {
+    this.newDeviceForm.set({
+      name: '',
+      type: '',
+      ip: '',
+      pingRate: 10,
+      latency: 5,
+      trafficLoad: 25
+    });
+  }
+
+  private resetEditDeviceForm(): void {
+    this.editDeviceForm.set({
+      name: '',
+      type: '',
+      ip: '',
+      pingRate: 10,
+      latency: 5,
+      trafficLoad: 25
+    });
   }
 
 

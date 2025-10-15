@@ -20,7 +20,8 @@
         <input 
           id="deviceName"
           type="text" 
-          [(ngModel)]="newDeviceName" 
+          [ngModel]="newDeviceForm().name"
+          (ngModelChange)="updateNewDeviceForm('name', $event)"
           placeholder="Device name"
           class="form-control">
       </div>
@@ -28,7 +29,8 @@
         <label for="deviceType">Type:</label>
         <select 
           id="deviceType"
-          [(ngModel)]="newDeviceType" 
+          [ngModel]="newDeviceForm().type"
+          (ngModelChange)="updateNewDeviceForm('type', $event)"
           class="form-control">
           <option value="">Select device type</option>
           @for (deviceType of deviceTypes; track deviceType) {
@@ -41,7 +43,8 @@
         <input 
           id="deviceIp"
           type="text" 
-          [(ngModel)]="newDeviceIp" 
+          [ngModel]="newDeviceForm().ip"
+          (ngModelChange)="updateNewDeviceForm('ip', $event)"
           placeholder="192.168.1.1"
           class="form-control">
       </div>
@@ -51,7 +54,8 @@
           <input 
             id="devicePingRate"
             type="number" 
-            [(ngModel)]="newDevicePingRate" 
+            [ngModel]="newDeviceForm().pingRate"
+            (ngModelChange)="updateNewDeviceForm('pingRate', $event)"
             placeholder="10"
             min="1"
             max="1000"
@@ -62,7 +66,8 @@
           <input 
             id="deviceLatency"
             type="number" 
-            [(ngModel)]="newDeviceLatency" 
+            [ngModel]="newDeviceForm().latency"
+            (ngModelChange)="updateNewDeviceForm('latency', $event)"
             placeholder="5"
             min="0"
             max="500"
@@ -74,7 +79,8 @@
         <input 
           id="deviceTrafficLoad"
           type="number" 
-          [(ngModel)]="newDeviceTrafficLoad" 
+          [ngModel]="newDeviceForm().trafficLoad"
+          (ngModelChange)="updateNewDeviceForm('trafficLoad', $event)"
           placeholder="25"
           min="0"
           max="100"
@@ -110,7 +116,8 @@
                   <input 
                     id="editDeviceName"
                     type="text" 
-                    [(ngModel)]="editingDeviceName" 
+                    [ngModel]="editDeviceForm().name"
+                    (ngModelChange)="updateEditDeviceForm('name', $event)"
                     class="form-control edit-input"
                     placeholder="Device name">
                 </div>
@@ -118,7 +125,8 @@
                   <label for="editDeviceType">Type:</label>
                   <select 
                     id="editDeviceType"
-                    [(ngModel)]="editingDeviceType" 
+                    [ngModel]="editDeviceForm().type"
+                    (ngModelChange)="updateEditDeviceForm('type', $event)"
                     class="form-control edit-input">
                     <option value="">Select device type</option>
                     @for (deviceType of deviceTypes; track deviceType) {
@@ -131,7 +139,8 @@
                   <input 
                     id="editDeviceIp"
                     type="text" 
-                    [(ngModel)]="editingDeviceIp" 
+                    [ngModel]="editDeviceForm().ip"
+                    (ngModelChange)="updateEditDeviceForm('ip', $event)"
                     class="form-control edit-input"
                     placeholder="192.168.1.1">
                 </div>
@@ -141,7 +150,8 @@
                     <input 
                       id="editDevicePingRate"
                       type="number" 
-                      [(ngModel)]="editingDevicePingRate" 
+                      [ngModel]="editDeviceForm().pingRate"
+                      (ngModelChange)="updateEditDeviceForm('pingRate', $event)"
                       class="form-control edit-input"
                       placeholder="10"
                       min="1"
@@ -152,7 +162,8 @@
                     <input 
                       id="editDeviceLatency"
                       type="number" 
-                      [(ngModel)]="editingDeviceLatency" 
+                      [ngModel]="editDeviceForm().latency"
+                      (ngModelChange)="updateEditDeviceForm('latency', $event)"
                       class="form-control edit-input"
                       placeholder="5"
                       min="0"
@@ -164,7 +175,8 @@
                   <input 
                     id="editDeviceTrafficLoad"
                     type="number" 
-                    [(ngModel)]="editingDeviceTrafficLoad" 
+                    [ngModel]="editDeviceForm().trafficLoad"
+                    (ngModelChange)="updateEditDeviceForm('trafficLoad', $event)"
                     class="form-control edit-input"
                     placeholder="25"
                     min="0"
