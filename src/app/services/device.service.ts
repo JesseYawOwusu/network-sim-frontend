@@ -247,7 +247,7 @@ export class DeviceService implements OnDestroy {
     trafficLoad: number = 25
   ): Connection {
     return {
-      id: crypto.randomUUID(),
+      id: this.browserCompatibilityService.generateUUID(),
       fromDeviceId,
       toDeviceId,
       status: 'active',
