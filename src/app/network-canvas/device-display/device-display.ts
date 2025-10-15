@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DeviceService } from '../../services/device.service';
+import { ValidationService, DeviceFormData } from '../../services/validation.service';
 import { Device, DeviceType } from '../../models/device.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { Device, DeviceType } from '../../models/device.model';
 })
 export class DeviceDisplayComponent {
   private deviceService = inject(DeviceService);
+  private validationService = inject(ValidationService);
   
   // Signals
   readonly devices = this.deviceService.devices;
@@ -26,14 +28,7 @@ export class DeviceDisplayComponent {
   readonly editingDevice = signal<string | null>(null);
   
   // Form state management using single object signals
-  readonly newDeviceForm = signal<{
-    name: string;
-    type: DeviceType | '';
-    ip: string;
-    pingRate: number;
-    latency: number;
-    trafficLoad: number;
-  }>({
+  readonly newDeviceForm = signal<DeviceFormData>({
     name: '',
     type: '',
     ip: '',
@@ -42,14 +37,7 @@ export class DeviceDisplayComponent {
     trafficLoad: 25
   });
   
-  readonly editDeviceForm = signal<{
-    name: string;
-    type: DeviceType | '';
-    ip: string;
-    pingRate: number;
-    latency: number;
-    trafficLoad: number;
-  }>({
+  readonly editDeviceForm = signal<DeviceFormData>({
     name: '',
     type: '',
     ip: '',
@@ -58,18 +46,87 @@ export class DeviceDisplayComponent {
     trafficLoad: 25
   });
 
+  // Validation error signals
+  readonly newDeviceFormErrors = signal<string[]>([]);
+  readonly editDeviceFormErrors = signal<string[]>([]);
+  readonly fieldErrors = signal<Record<string, string[]>>({});
+
   // Available device types for forms
   readonly deviceTypes: DeviceType[] = [
     'Router', 'Switch', 'Server', 'Workstation', 'Firewall', 'Access Point', 'Load Balancer'
   ];
 
-  // Helper methods for form field updates
-  updateNewDeviceForm(field: keyof ReturnType<typeof this.newDeviceForm>, value: any): void {
+  // Helper methods for form field updates with validation
+  updateNewDeviceForm(field: keyof DeviceFormData, value: any): void {
     this.newDeviceForm.update(form => ({ ...form, [field]: value }));
+    this.validateNewDeviceForm();
   }
 
-  updateEditDeviceForm(field: keyof ReturnType<typeof this.editDeviceForm>, value: any): void {
+  updateEditDeviceForm(field: keyof DeviceFormData, value: any): void {
     this.editDeviceForm.update(form => ({ ...form, [field]: value }));
+    this.validateEditDeviceForm();
+  }
+
+  // Validation methods
+  private validateNewDeviceForm(): void {
+    const form = this.newDeviceForm();
+    const validation = this.validationService.validateDeviceForm(form);
+    this.newDeviceFormErrors.set(validation.errors);
+    this.updateFieldErrors('new', validation.errors);
+  }
+
+  private validateEditDeviceForm(): void {
+    const form = this.editDeviceForm();
+    const validation = this.validationService.validateDeviceForm(form);
+    this.editDeviceFormErrors.set(validation.errors);
+    this.updateFieldErrors('edit', validation.errors);
+  }
+
+  private updateFieldErrors(formType: 'new' | 'edit', errors: string[]): void {
+    const fieldErrorMap: Record<string, string[]> = {};
+    
+    errors.forEach(error => {
+      // Map errors to specific fields based on error message content
+      if (error.includes('name')) {
+        fieldErrorMap[`${formType}_name`] = fieldErrorMap[`${formType}_name`] || [];
+        fieldErrorMap[`${formType}_name`].push(error);
+      } else if (error.includes('type')) {
+        fieldErrorMap[`${formType}_type`] = fieldErrorMap[`${formType}_type`] || [];
+        fieldErrorMap[`${formType}_type`].push(error);
+      } else if (error.includes('IP')) {
+        fieldErrorMap[`${formType}_ip`] = fieldErrorMap[`${formType}_ip`] || [];
+        fieldErrorMap[`${formType}_ip`].push(error);
+      } else if (error.includes('Ping rate')) {
+        fieldErrorMap[`${formType}_pingRate`] = fieldErrorMap[`${formType}_pingRate`] || [];
+        fieldErrorMap[`${formType}_pingRate`].push(error);
+      } else if (error.includes('Latency')) {
+        fieldErrorMap[`${formType}_latency`] = fieldErrorMap[`${formType}_latency`] || [];
+        fieldErrorMap[`${formType}_latency`].push(error);
+      } else if (error.includes('Traffic load')) {
+        fieldErrorMap[`${formType}_trafficLoad`] = fieldErrorMap[`${formType}_trafficLoad`] || [];
+        fieldErrorMap[`${formType}_trafficLoad`].push(error);
+      }
+    });
+
+    this.fieldErrors.update(current => ({ ...current, ...fieldErrorMap }));
+  }
+
+  // Helper method to get field errors
+  getFieldErrors(formType: 'new' | 'edit', field: string): string[] {
+    return this.fieldErrors()[`${formType}_${field}`] || [];
+  }
+
+  // Helper method to check if form is valid
+  isNewDeviceFormValid(): boolean {
+    const form = this.newDeviceForm();
+    const validation = this.validationService.validateDeviceForm(form);
+    return validation.isValid;
+  }
+
+  isEditDeviceFormValid(): boolean {
+    const form = this.editDeviceForm();
+    const validation = this.validationService.validateDeviceForm(form);
+    return validation.isValid;
   }
 
   toggleAddForm(): void {
@@ -107,47 +164,51 @@ export class DeviceDisplayComponent {
   }
 
   saveDeviceEdit(deviceId: string): void {
+    if (!this.isEditDeviceFormValid()) {
+      return; // Don't save if form is invalid
+    }
+
     const form = this.editDeviceForm();
     const { name, type, ip, pingRate, latency, trafficLoad } = form;
     
-    if (name && type && ip) {
-      this.updateDevice(deviceId, { 
-        name, 
-        type: type as DeviceType, 
-        ip, 
-        pingRate, 
-        latency, 
-        trafficLoad 
-      });
-    }
+    this.updateDevice(deviceId, { 
+      name, 
+      type: type as DeviceType, 
+      ip, 
+      pingRate, 
+      latency, 
+      trafficLoad 
+    });
   }
 
   saveDevice(): void {
+    if (!this.isNewDeviceFormValid()) {
+      return; // Don't save if form is invalid
+    }
+
     const form = this.newDeviceForm();
     const { name, type, ip, pingRate, latency, trafficLoad } = form;
     
-    if (name && type && ip) {
-      const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
-        name,
-        type: type as DeviceType,
-        ip,
-        pingRate,
-        latency,
-        trafficLoad,
-        position: { x: 100, y: 100 },
-        status: 'online'
-      };
-      
-      this.deviceService.addDevice(deviceToAdd).subscribe({
-        next: (device) => {
-          this.deviceService.addDeviceLocally(device);
-          this.toggleAddForm();
-        },
-        error: (error) => {
-          // Handle error silently or show user-friendly message
-        }
-      });
-    }
+    const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
+      name,
+      type: type as DeviceType,
+      ip,
+      pingRate,
+      latency,
+      trafficLoad,
+      position: { x: 100, y: 100 },
+      status: 'online'
+    };
+    
+    this.deviceService.addDevice(deviceToAdd).subscribe({
+      next: (device) => {
+        this.deviceService.addDeviceLocally(device);
+        this.toggleAddForm();
+      },
+      error: (error) => {
+        // Handle error silently or show user-friendly message
+      }
+    });
   }
 
   updateDevice(id: string, updates: Partial<Device>): void {
@@ -184,6 +245,8 @@ export class DeviceDisplayComponent {
       latency: 5,
       trafficLoad: 25
     });
+    this.newDeviceFormErrors.set([]);
+    this.clearFieldErrors('new');
   }
 
   private resetEditDeviceForm(): void {
@@ -194,6 +257,20 @@ export class DeviceDisplayComponent {
       pingRate: 10,
       latency: 5,
       trafficLoad: 25
+    });
+    this.editDeviceFormErrors.set([]);
+    this.clearFieldErrors('edit');
+  }
+
+  private clearFieldErrors(formType: 'new' | 'edit'): void {
+    this.fieldErrors.update(current => {
+      const updated = { ...current };
+      Object.keys(updated).forEach(key => {
+        if (key.startsWith(`${formType}_`)) {
+          delete updated[key];
+        }
+      });
+      return updated;
     });
   }
 

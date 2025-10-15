@@ -8,6 +8,28 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Validation styles */
+.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
+}
+
+.invalid-feedback div {
+  margin-bottom: 0.25rem;
+}
+
+.invalid-feedback div:last-child {
+  margin-bottom: 0;
+}
+
 .device-header {
   display: flex;
   justify-content: space-between;
