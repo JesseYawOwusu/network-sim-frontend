@@ -20,33 +20,54 @@
         <input 
           id="deviceName"
           type="text" 
-          [(ngModel)]="newDeviceName" 
+          [ngModel]="newDeviceForm().name"
+          (ngModelChange)="updateNewDeviceForm('name', $event)"
           placeholder="Device name"
-          class="form-control">
+          [class]="'form-control' + (getFieldErrors('new', 'name').length > 0 ? ' is-invalid' : '')">
+        @if (getFieldErrors('new', 'name').length > 0) {
+          <div class="invalid-feedback">
+            @for (error of getFieldErrors('new', 'name'); track error) {
+              <div>{{ error }}</div>
+            }
+          </div>
+        }
       </div>
       <div class="form-group">
         <label for="deviceType">Type:</label>
         <select 
           id="deviceType"
-          [(ngModel)]="newDeviceType" 
-          class="form-control">
+          [ngModel]="newDeviceForm().type"
+          (ngModelChange)="updateNewDeviceForm('type', $event)"
+          [class]="'form-control' + (getFieldErrors('new', 'type').length > 0 ? ' is-invalid' : '')">
           <option value="">Select device type</option>
-          <option value="Router">Router</option>
-          <option value="Switch">Switch</option>
-          <option value="Server">Server</option>
-          <option value="Workstation">Workstation</option>
-          <option value="Firewall">Firewall</option>
-          <option value="Access Point">Access Point</option>
+          @for (deviceType of deviceTypes; track deviceType) {
+            <option [value]="deviceType">{{ deviceType }}</option>
+          }
         </select>
+        @if (getFieldErrors('new', 'type').length > 0) {
+          <div class="invalid-feedback">
+            @for (error of getFieldErrors('new', 'type'); track error) {
+              <div>{{ error }}</div>
+            }
+          </div>
+        }
       </div>
       <div class="form-group">
         <label for="deviceIp">IP Address:</label>
         <input 
           id="deviceIp"
           type="text" 
-          [(ngModel)]="newDeviceIp" 
+          [ngModel]="newDeviceForm().ip"
+          (ngModelChange)="updateNewDeviceForm('ip', $event)"
           placeholder="192.168.1.1"
-          class="form-control">
+          [class]="'form-control' + (getFieldErrors('new', 'ip').length > 0 ? ' is-invalid' : '')">
+        @if (getFieldErrors('new', 'ip').length > 0) {
+          <div class="invalid-feedback">
+            @for (error of getFieldErrors('new', 'ip'); track error) {
+              <div>{{ error }}</div>
+            }
+          </div>
+        }
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -54,22 +75,38 @@
           <input 
             id="devicePingRate"
             type="number" 
-            [(ngModel)]="newDevicePingRate" 
+            [ngModel]="newDeviceForm().pingRate"
+            (ngModelChange)="updateNewDeviceForm('pingRate', $event)"
             placeholder="10"
             min="1"
             max="1000"
-            class="form-control">
+            [class]="'form-control' + (getFieldErrors('new', 'pingRate').length > 0 ? ' is-invalid' : '')">
+          @if (getFieldErrors('new', 'pingRate').length > 0) {
+            <div class="invalid-feedback">
+              @for (error of getFieldErrors('new', 'pingRate'); track error) {
+                <div>{{ error }}</div>
+              }
+            </div>
+          }
         </div>
         <div class="form-group">
           <label for="deviceLatency">Latency (ms):</label>
           <input 
             id="deviceLatency"
             type="number" 
-            [(ngModel)]="newDeviceLatency" 
+            [ngModel]="newDeviceForm().latency"
+            (ngModelChange)="updateNewDeviceForm('latency', $event)"
             placeholder="5"
             min="0"
             max="500"
-            class="form-control">
+            [class]="'form-control' + (getFieldErrors('new', 'latency').length > 0 ? ' is-invalid' : '')">
+          @if (getFieldErrors('new', 'latency').length > 0) {
+            <div class="invalid-feedback">
+              @for (error of getFieldErrors('new', 'latency'); track error) {
+                <div>{{ error }}</div>
+              }
+            </div>
+          }
         </div>
       </div>
       <div class="form-group">
@@ -77,14 +114,27 @@
         <input 
           id="deviceTrafficLoad"
           type="number" 
-          [(ngModel)]="newDeviceTrafficLoad" 
+          [ngModel]="newDeviceForm().trafficLoad"
+          (ngModelChange)="updateNewDeviceForm('trafficLoad', $event)"
           placeholder="25"
           min="0"
           max="100"
-          class="form-control">
+          [class]="'form-control' + (getFieldErrors('new', 'trafficLoad').length > 0 ? ' is-invalid' : '')">
+        @if (getFieldErrors('new', 'trafficLoad').length > 0) {
+          <div class="invalid-feedback">
+            @for (error of getFieldErrors('new', 'trafficLoad'); track error) {
+              <div>{{ error }}</div>
+            }
+          </div>
+        }
       </div>
       <div class="form-actions">
-        <button class="btn btn-success" (click)="saveDevice()">Save Device</button>
+        <button 
+          class="btn btn-success" 
+          (click)="saveDevice()"
+          [disabled]="!isNewDeviceFormValid()">
+          Save Device
+        </button>
         <button class="btn btn-secondary" (click)="toggleAddForm()">Cancel</button>
       </div>
     </div>
@@ -113,33 +163,54 @@
                   <input 
                     id="editDeviceName"
                     type="text" 
-                    [(ngModel)]="editingDeviceName" 
-                    class="form-control edit-input"
+                    [ngModel]="editDeviceForm().name"
+                    (ngModelChange)="updateEditDeviceForm('name', $event)"
+                    [class]="'form-control edit-input' + (getFieldErrors('edit', 'name').length > 0 ? ' is-invalid' : '')"
                     placeholder="Device name">
+                  @if (getFieldErrors('edit', 'name').length > 0) {
+                    <div class="invalid-feedback">
+                      @for (error of getFieldErrors('edit', 'name'); track error) {
+                        <div>{{ error }}</div>
+                      }
+                    </div>
+                  }
                 </div>
                 <div class="form-group">
                   <label for="editDeviceType">Type:</label>
                   <select 
                     id="editDeviceType"
-                    [(ngModel)]="editingDeviceType" 
-                    class="form-control edit-input">
+                    [ngModel]="editDeviceForm().type"
+                    (ngModelChange)="updateEditDeviceForm('type', $event)"
+                    [class]="'form-control edit-input' + (getFieldErrors('edit', 'type').length > 0 ? ' is-invalid' : '')">
                     <option value="">Select device type</option>
-                    <option value="Router">Router</option>
-                    <option value="Switch">Switch</option>
-                    <option value="Server">Server</option>
-                    <option value="Workstation">Workstation</option>
-                    <option value="Firewall">Firewall</option>
-                    <option value="Access Point">Access Point</option>
+                    @for (deviceType of deviceTypes; track deviceType) {
+                      <option [value]="deviceType">{{ deviceType }}</option>
+                    }
                   </select>
+                  @if (getFieldErrors('edit', 'type').length > 0) {
+                    <div class="invalid-feedback">
+                      @for (error of getFieldErrors('edit', 'type'); track error) {
+                        <div>{{ error }}</div>
+                      }
+                    </div>
+                  }
                 </div>
                 <div class="form-group">
                   <label for="editDeviceIp">IP Address:</label>
                   <input 
                     id="editDeviceIp"
                     type="text" 
-                    [(ngModel)]="editingDeviceIp" 
-                    class="form-control edit-input"
+                    [ngModel]="editDeviceForm().ip"
+                    (ngModelChange)="updateEditDeviceForm('ip', $event)"
+                    [class]="'form-control edit-input' + (getFieldErrors('edit', 'ip').length > 0 ? ' is-invalid' : '')"
                     placeholder="192.168.1.1">
+                  @if (getFieldErrors('edit', 'ip').length > 0) {
+                    <div class="invalid-feedback">
+                      @for (error of getFieldErrors('edit', 'ip'); track error) {
+                        <div>{{ error }}</div>
+                      }
+                    </div>
+                  }
                 </div>
                 <div class="form-row">
                   <div class="form-group">
@@ -147,22 +218,38 @@
                     <input 
                       id="editDevicePingRate"
                       type="number" 
-                      [(ngModel)]="editingDevicePingRate" 
-                      class="form-control edit-input"
+                      [ngModel]="editDeviceForm().pingRate"
+                      (ngModelChange)="updateEditDeviceForm('pingRate', $event)"
+                      [class]="'form-control edit-input' + (getFieldErrors('edit', 'pingRate').length > 0 ? ' is-invalid' : '')"
                       placeholder="10"
                       min="1"
                       max="1000">
+                    @if (getFieldErrors('edit', 'pingRate').length > 0) {
+                      <div class="invalid-feedback">
+                        @for (error of getFieldErrors('edit', 'pingRate'); track error) {
+                          <div>{{ error }}</div>
+                        }
+                      </div>
+                    }
                   </div>
                   <div class="form-group">
                     <label for="editDeviceLatency">Latency (ms):</label>
                     <input 
                       id="editDeviceLatency"
                       type="number" 
-                      [(ngModel)]="editingDeviceLatency" 
-                      class="form-control edit-input"
+                      [ngModel]="editDeviceForm().latency"
+                      (ngModelChange)="updateEditDeviceForm('latency', $event)"
+                      [class]="'form-control edit-input' + (getFieldErrors('edit', 'latency').length > 0 ? ' is-invalid' : '')"
                       placeholder="5"
                       min="0"
                       max="500">
+                    @if (getFieldErrors('edit', 'latency').length > 0) {
+                      <div class="invalid-feedback">
+                        @for (error of getFieldErrors('edit', 'latency'); track error) {
+                          <div>{{ error }}</div>
+                        }
+                      </div>
+                    }
                   </div>
                 </div>
                 <div class="form-group">
@@ -170,11 +257,19 @@
                   <input 
                     id="editDeviceTrafficLoad"
                     type="number" 
-                    [(ngModel)]="editingDeviceTrafficLoad" 
-                    class="form-control edit-input"
+                    [ngModel]="editDeviceForm().trafficLoad"
+                    (ngModelChange)="updateEditDeviceForm('trafficLoad', $event)"
+                    [class]="'form-control edit-input' + (getFieldErrors('edit', 'trafficLoad').length > 0 ? ' is-invalid' : '')"
                     placeholder="25"
                     min="0"
                     max="100">
+                  @if (getFieldErrors('edit', 'trafficLoad').length > 0) {
+                    <div class="invalid-feedback">
+                      @for (error of getFieldErrors('edit', 'trafficLoad'); track error) {
+                        <div>{{ error }}</div>
+                      }
+                    </div>
+                  }
                 </div>
               </div>
             } @else {
@@ -189,7 +284,10 @@
             </span>
             <div class="device-actions">
               @if (editingDevice() === device.id) {
-                <button class="btn btn-sm btn-success" (click)="saveDeviceEdit(device.id)">
+                <button 
+                  class="btn btn-sm btn-success" 
+                  (click)="saveDeviceEdit(device.id)"
+                  [disabled]="!isEditDeviceFormValid()">
                   Save
                 </button>
                 <button class="btn btn-sm btn-secondary" (click)="cancelEditing()">

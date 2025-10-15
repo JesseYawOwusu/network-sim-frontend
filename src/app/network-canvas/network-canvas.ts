@@ -71,8 +71,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
       cancelAnimationFrame(this.animationId);
     }
     
-    console.log('Starting animation loop');
-    
     const animate = (currentTime: number) => {
       const deltaTime = currentTime - this.lastTime;
       this.lastTime = currentTime;
@@ -134,8 +132,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     const canvas = this.ctx.canvas;
     canvas.width = 800;
     canvas.height = 500;
-    
-    console.log('Canvas setup complete:', canvas.width, 'x', canvas.height);
     
     // Set default styles
     this.ctx.lineWidth = 1;
@@ -527,7 +523,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     });
     
     if (clickedDevice) {
-      console.log('Clicked device:', clickedDevice);
       // TODO: Show device details or perform action
     }
     
@@ -547,7 +542,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     });
     
     if (clickedConnection) {
-      console.log('Clicked connection:', clickedConnection);
       // TODO: Show connection details or traffic stats
     }
   }
@@ -628,7 +622,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
 
   private redrawCanvas() {
     if (!this.ctx) {
-      console.log('No canvas context for redraw');
       return;
     }
     
@@ -643,8 +636,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     
     // Draw devices on top
     this.drawDevices();
-    
-    console.log('Canvas redrawn - devices:', this.devices().length, 'connections:', this.connections().length);
   }
 }
 

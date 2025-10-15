@@ -12,4 +12,6 @@ bootstrapApplication(AppComponent, {
     provideZoneChangeDetection()
   ]
 })
-  .catch(err => console.error(err));
+  .catch(err => {
+    // Handle bootstrap error silently
+  });

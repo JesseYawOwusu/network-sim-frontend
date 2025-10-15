@@ -1,7 +1,9 @@
+export type DeviceType = 'Router' | 'Switch' | 'Server' | 'Workstation' | 'Firewall' | 'Access Point' | 'Load Balancer';
+
 export interface Device {
   id: string;
   name: string;
-  type: string;
+  type: DeviceType;
   ip: string;
   status: 'online' | 'offline' | 'failed';
   pingRate: number; // ms (simulated)
