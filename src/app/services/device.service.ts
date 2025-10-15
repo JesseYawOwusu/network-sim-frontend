@@ -12,6 +12,7 @@ export class DeviceService implements OnDestroy {
   private readonly connectionsSignal = signal<Connection[]>([]);
   private readonly loadingSignal = signal<boolean>(false);
   private readonly errorSignal = signal<string | null>(null);
+  private readonly simulationRunningSignal = signal<boolean>(false);
   private pollingSubscription?: Subscription;
 
   // Public readonly signals
@@ -19,6 +20,7 @@ export class DeviceService implements OnDestroy {
   readonly connections = this.connectionsSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
+  readonly simulationRunning = this.simulationRunningSignal.asReadonly();
 
   // Computed signals
   readonly onlineDevices = computed(() => 
@@ -78,8 +80,14 @@ export class DeviceService implements OnDestroy {
       setTimeout(() => {
         const currentDevices = this.devicesSignal();
         const currentConnections = this.connectionsSignal();
+        const isSimulationRunning = this.simulationRunningSignal();
         
         const updatedDevices = currentDevices.map(device => {
+          // Only simulate changes if simulation is running
+          if (!isSimulationRunning) {
+            return device; // Return device unchanged
+          }
+          
           // Randomly change device statuses to simulate real network conditions
           const random = Math.random();
           let newStatus = device.status;
@@ -94,8 +102,8 @@ export class DeviceService implements OnDestroy {
             status: newStatus,
             pingRate: Math.max(1, device.pingRate + (Math.random() - 0.5) * 2),
             latency: Math.max(0, device.latency + (Math.random() - 0.5) * 1),
-            trafficLoad: Math.max(0, Math.min(100, device.trafficLoad + (Math.random() - 0.5) * 10)),
-            lastUpdated: new Date()
+            trafficLoad: Math.max(0, Math.min(100, device.trafficLoad + (Math.random() - 0.5) * 10))
+            // Don't update lastUpdated during simulation - only during user actions
           };
         });
 
@@ -109,6 +117,15 @@ export class DeviceService implements OnDestroy {
             newStatus = 'failed';
           } else if (fromDevice.status === 'offline' || toDevice.status === 'offline') {
             newStatus = 'inactive';
+          }
+          
+          // Only simulate parameter changes if simulation is running
+          if (!isSimulationRunning) {
+            return {
+              ...connection,
+              status: newStatus
+              // Keep original parameters when simulation is not running
+            };
           }
           
           return {
@@ -209,16 +226,31 @@ export class DeviceService implements OnDestroy {
     );
   }
 
+  // Simulation control methods
+  startSimulation(): void {
+    this.simulationRunningSignal.set(true);
+  }
+
+  stopSimulation(): void {
+    this.simulationRunningSignal.set(false);
+  }
+
   // Helper method to create connections between devices
-  createConnectionBetweenDevices(fromDeviceId: string, toDeviceId: string): Connection {
+  createConnectionBetweenDevices(
+    fromDeviceId: string, 
+    toDeviceId: string, 
+    latency: number = 5, 
+    bandwidth: number = 100, 
+    trafficLoad: number = 25
+  ): Connection {
     return {
       id: crypto.randomUUID(),
       fromDeviceId,
       toDeviceId,
       status: 'active',
-      latency: Math.floor(Math.random() * 10) + 1,
-      bandwidth: Math.floor(Math.random() * 100) + 10,
-      trafficLoad: Math.floor(Math.random() * 50),
+      latency,
+      bandwidth,
+      trafficLoad,
       lastUpdated: new Date()
     };
   }

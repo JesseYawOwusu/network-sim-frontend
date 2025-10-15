@@ -27,12 +27,26 @@ export class DeviceDisplayComponent {
   
   // Individual form field signals for two-way binding
   readonly newDeviceName = signal('');
+  readonly newDeviceType = signal('');
   readonly newDeviceIp = signal('');
   readonly newDevicePingRate = signal(10);
   readonly newDeviceLatency = signal(5);
-  readonly newDeviceTrafficLoad = signal(0);
+  readonly newDeviceTrafficLoad = signal(25);
+  
+  // Editing signals
+  readonly editingDeviceName = signal('');
+  readonly editingDeviceType = signal('');
+  readonly editingDeviceIp = signal('');
+  readonly editingDevicePingRate = signal(10);
+  readonly editingDeviceLatency = signal(5);
+  readonly editingDeviceTrafficLoad = signal(25);
 
   toggleAddForm(): void {
+    // Cancel any active editing when toggling add form
+    if (this.editingDevice()) {
+      this.cancelEditing();
+    }
+    
     this.showAddForm.update(show => !show);
     if (!this.showAddForm()) {
       this.resetNewDevice();
@@ -40,24 +54,66 @@ export class DeviceDisplayComponent {
   }
 
   startEditing(device: Device): void {
+    // Close add form if it's open
+    if (this.showAddForm()) {
+      this.showAddForm.set(false);
+    }
+    
     this.editingDevice.set(device.id);
+    this.editingDeviceName.set(device.name);
+    this.editingDeviceType.set(device.type);
+    this.editingDeviceIp.set(device.ip);
+    this.editingDevicePingRate.set(device.pingRate);
+    this.editingDeviceLatency.set(device.latency);
+    this.editingDeviceTrafficLoad.set(device.trafficLoad);
   }
 
   cancelEditing(): void {
     this.editingDevice.set(null);
+    this.editingDeviceName.set('');
+    this.editingDeviceType.set('');
+    this.editingDeviceIp.set('');
+    this.editingDevicePingRate.set(10);
+    this.editingDeviceLatency.set(5);
+    this.editingDeviceTrafficLoad.set(25);
+  }
+
+  saveDeviceEdit(deviceId: string): void {
+    const name = this.editingDeviceName();
+    const type = this.editingDeviceType();
+    const ip = this.editingDeviceIp();
+    const pingRate = this.editingDevicePingRate();
+    const latency = this.editingDeviceLatency();
+    const trafficLoad = this.editingDeviceTrafficLoad();
+    
+    if (name && type && ip) {
+      this.updateDevice(deviceId, { 
+        name, 
+        type, 
+        ip, 
+        pingRate, 
+        latency, 
+        trafficLoad 
+      });
+    }
   }
 
   saveDevice(): void {
     const name = this.newDeviceName();
+    const type = this.newDeviceType();
     const ip = this.newDeviceIp();
+    const pingRate = this.newDevicePingRate();
+    const latency = this.newDeviceLatency();
+    const trafficLoad = this.newDeviceTrafficLoad();
     
-    if (name && ip) {
+    if (name && type && ip) {
       const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
         name,
+        type,
         ip,
-        pingRate: this.newDevicePingRate(),
-        latency: this.newDeviceLatency(),
-        trafficLoad: this.newDeviceTrafficLoad(),
+        pingRate,
+        latency,
+        trafficLoad,
         position: { x: 100, y: 100 },
         status: 'online'
       };
@@ -67,7 +123,9 @@ export class DeviceDisplayComponent {
           this.deviceService.addDeviceLocally(device);
           this.toggleAddForm();
         },
-        error: (error) => console.error('Failed to add device:', error)
+        error: (error) => {
+          // Handle error silently or show user-friendly message
+        }
       });
     }
   }
@@ -78,7 +136,9 @@ export class DeviceDisplayComponent {
         this.deviceService.updateDeviceLocally(id, device);
         this.cancelEditing();
       },
-      error: (error) => console.error('Failed to update device:', error)
+      error: (error) => {
+        // Handle error silently or show user-friendly message
+      }
     });
   }
 
@@ -88,18 +148,22 @@ export class DeviceDisplayComponent {
         next: () => {
           this.deviceService.removeDeviceLocally(id);
         },
-        error: (error) => console.error('Failed to delete device:', error)
+        error: (error) => {
+          // Handle error silently or show user-friendly message
+        }
       });
     }
   }
 
   private resetNewDevice(): void {
     this.newDeviceName.set('');
+    this.newDeviceType.set('');
     this.newDeviceIp.set('');
     this.newDevicePingRate.set(10);
     this.newDeviceLatency.set(5);
-    this.newDeviceTrafficLoad.set(0);
+    this.newDeviceTrafficLoad.set(25);
   }
+
 
   getStatusClass(status: Device['status']): string {
     switch (status) {

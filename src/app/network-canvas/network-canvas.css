@@ -2,10 +2,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+
+.canvas-spacer {
+  flex: 1;
+  min-height: 0;
 }
 
 canvas {
@@ -14,6 +24,8 @@ canvas {
   background: white;
   cursor: crosshair;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
 }
 
 canvas:hover {
@@ -28,4 +40,97 @@ canvas:hover {
 
 .canvas-info p {
   margin: 0;
+}
+
+/* Device Tooltip Styles */
+.device-tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 250px;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tooltip-header {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.device-type-badge {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tooltip-content {
+  padding: 12px 16px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tooltip-row:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-row .label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  flex: 1;
+}
+
+.tooltip-row .value {
+  font-size: 12px;
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+  flex: 1;
+}
+
+.tooltip-row .value.status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tooltip-row .value.status-online {
+  background: #d4edda;
+  color: #155724;
+}
+
+.tooltip-row .value.status-offline {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.tooltip-row .value.status-failed {
+  background: #f8d7da;
+  color: #721c24;
 }

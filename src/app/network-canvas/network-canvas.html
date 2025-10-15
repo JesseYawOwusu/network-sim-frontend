@@ -4,9 +4,48 @@
     width="800" 
     height="500"
     (click)="onCanvasClick($event)"
-    (mousemove)="onCanvasMouseMove($event)">
+    (mousemove)="onCanvasMouseMove($event)"
+    (mouseleave)="onCanvasMouseLeave()">
   </canvas>
+  
+  <!-- Device Tooltip -->
+  @if (hoveredDeviceInfo()) {
+    <div 
+      class="device-tooltip"
+      [style.left.px]="tooltipPosition().x"
+      [style.top.px]="tooltipPosition().y">
+      <div class="tooltip-header">
+        <h4>{{ hoveredDeviceInfo()?.name }}</h4>
+        <span class="device-type-badge">{{ hoveredDeviceInfo()?.type }}</span>
+      </div>
+      <div class="tooltip-content">
+        <div class="tooltip-row">
+          <span class="label">IP Address:</span>
+          <span class="value">{{ hoveredDeviceInfo()?.ip }}</span>
+        </div>
+        <div class="tooltip-row">
+          <span class="label">Status:</span>
+          <span class="value status" [class]="'status-' + hoveredDeviceInfo()?.status">
+            {{ hoveredDeviceInfo()?.status | titlecase }}
+          </span>
+        </div>
+        <div class="tooltip-row">
+          <span class="label">Ping Rate:</span>
+          <span class="value">{{ hoveredDeviceInfo()?.pingRate }}ms</span>
+        </div>
+        <div class="tooltip-row">
+          <span class="label">Latency:</span>
+          <span class="value">{{ hoveredDeviceInfo()?.latency }}ms</span>
+        </div>
+        <div class="tooltip-row">
+          <span class="label">Traffic Load:</span>
+          <span class="value">{{ hoveredDeviceInfo()?.trafficLoad }}%</span>
+        </div>
+      </div>
+    </div>
+  }
+  
   <div class="canvas-info">
-    <p>Click on devices or connections to view details. Green lines = active, yellow = inactive, red = failed. Blue dots show traffic flow.</p>
+    <p>Hover over devices to view network details. Green lines = active, yellow = inactive, red = failed. Blue dots show traffic flow.</p>
   </div>
 </div>

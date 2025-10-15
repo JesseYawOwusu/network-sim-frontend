@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy, inject, effect } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceService } from '../services/device.service';
 import { Device } from '../models/device.model';
@@ -26,6 +26,10 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   // Signals
   readonly devices = this.deviceService.devices;
   readonly connections = this.deviceService.connections;
+  
+  // Tooltip signals
+  readonly hoveredDeviceInfo = signal<Device | null>(null);
+  readonly tooltipPosition = signal({ x: 0, y: 0 });
 
   constructor() {
     // Initialize device animations
@@ -63,6 +67,7 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
+    
     
     const animate = (currentTime: number) => {
       const deltaTime = currentTime - this.lastTime;
@@ -121,10 +126,11 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   private setupCanvas() {
     if (!this.ctx) return;
     
-    // Set canvas size
+    // Set canvas size to match HTML template
     const canvas = this.ctx.canvas;
     canvas.width = 800;
     canvas.height = 500;
+    
     
     // Set default styles
     this.ctx.lineWidth = 1;
@@ -243,10 +249,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
       this.drawTrafficFlow(x1, y1, x2, y2, connection.trafficLoad, cp1x, cp1y, cp2x, cp2y);
     }
     
-    // Draw connection info in the middle of the line
-    if (easedProgress > 0.8) {
-      this.drawConnectionInfo(connection, x1, y1, x2, y2);
-    }
   }
 
   private drawAnimatedDashedLine(x1: number, y1: number, x2: number, y2: number, cp1x: number, cp1y: number, cp2x: number, cp2y: number, progress: number, lineWidth: number) {
@@ -342,23 +344,6 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private drawConnectionInfo(connection: Connection, x1: number, y1: number, x2: number, y2: number) {
-    if (!this.ctx) return;
-    
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    
-    // Draw latency info
-    this.ctx.fillStyle = '#333';
-    this.ctx.font = '9px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(`${connection.latency}ms`, midX, midY - 5);
-    
-    // Draw bandwidth info
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = '8px Arial';
-    this.ctx.fillText(`${connection.bandwidth}Mbps`, midX, midY + 8);
-  }
 
   private drawDevices() {
     if (!this.ctx) return;
@@ -456,15 +441,10 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     this.ctx.textAlign = 'center';
     this.ctx.fillText(this.getDeviceIcon(device.name), x, y + 5 * scale);
     
-    // Draw device name
+    // Draw device name (keep this for identification)
     this.ctx.fillStyle = '#333';
     this.ctx.font = `${10 * scale}px Arial`;
     this.ctx.fillText(device.name, x, y + radius + 15 * scale);
-    
-    // Draw IP address
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = `${9 * scale}px Arial`;
-    this.ctx.fillText(device.ip, x, y + radius + 28 * scale);
     
     // Draw status indicator
     this.drawStatusIndicator(x, y, radius, device.status);
@@ -525,44 +505,16 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     return 'D'; // Default device icon
   }
 
-  onCanvasMouseMove(event: MouseEvent) {
-    if (!this.ctx) return;
-    
-    const canvas = this.ctx.canvas;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    
-    // Check if mouse is over a device
-    const devices = this.devices();
-    const hoveredDevice = devices.find(device => {
-      const distance = Math.sqrt(
-        Math.pow(x - device.position.x, 2) + Math.pow(y - device.position.y, 2)
-      );
-      return distance <= 25; // Device radius
-    });
-    
-    // Update hover state
-    if (hoveredDevice && this.hoveredDevice !== hoveredDevice.id) {
-      this.hoveredDevice = hoveredDevice.id;
-      canvas.style.cursor = 'pointer';
-    } else if (!hoveredDevice && this.hoveredDevice) {
-      this.hoveredDevice = null;
-      canvas.style.cursor = 'default';
-    }
-  }
 
-  onCanvasClick(event: MouseEvent) {
+  onCanvasClick(event: MouseEvent): void {
     if (!this.ctx) return;
     
-    const canvas = this.ctx.canvas;
-    const rect = canvas.getBoundingClientRect();
+    const rect = this.ctx.canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // Check if click is on a device first
-    const devices = this.devices();
-    const clickedDevice = devices.find(device => {
+    // Check if click is on a device
+    const clickedDevice = this.devices().find(device => {
       const distance = Math.sqrt(
         Math.pow(x - device.position.x, 2) + Math.pow(y - device.position.y, 2)
       );
@@ -570,16 +522,13 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     });
     
     if (clickedDevice) {
-      console.log('Clicked device:', clickedDevice);
-      // TODO: Show device details or context menu
-      return;
+      // TODO: Show device details or perform action
     }
     
     // Check if click is on a connection
-    const connections = this.connections();
-    const clickedConnection = connections.find(connection => {
-      const fromDevice = devices.find(d => d.id === connection.fromDeviceId);
-      const toDevice = devices.find(d => d.id === connection.toDeviceId);
+    const clickedConnection = this.connections().find(connection => {
+      const fromDevice = this.devices().find(d => d.id === connection.fromDeviceId);
+      const toDevice = this.devices().find(d => d.id === connection.toDeviceId);
       
       if (!fromDevice || !toDevice) return false;
       
@@ -592,9 +541,42 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     });
     
     if (clickedConnection) {
-      console.log('Clicked connection:', clickedConnection);
       // TODO: Show connection details or traffic stats
     }
+  }
+
+  onCanvasMouseMove(event: MouseEvent): void {
+    if (!this.ctx) return;
+    
+    const rect = this.ctx.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Check if mouse is over a device
+    const hoveredDevice = this.devices().find(device => {
+      const distance = Math.sqrt(
+        Math.pow(x - device.position.x, 2) + Math.pow(y - device.position.y, 2)
+      );
+      return distance <= 25; // Device radius
+    });
+    
+    if (hoveredDevice) {
+      this.hoveredDevice = hoveredDevice.id;
+      this.hoveredDeviceInfo.set(hoveredDevice);
+      
+      // Position tooltip near mouse cursor
+      const tooltipX = event.clientX + 10;
+      const tooltipY = event.clientY - 10;
+      this.tooltipPosition.set({ x: tooltipX, y: tooltipY });
+    } else {
+      this.hoveredDevice = null;
+      this.hoveredDeviceInfo.set(null);
+    }
+  }
+
+  onCanvasMouseLeave(): void {
+    this.hoveredDevice = null;
+    this.hoveredDeviceInfo.set(null);
   }
 
   private isPointOnLine(px: number, py: number, x1: number, y1: number, x2: number, y2: number, tolerance: number): boolean {
@@ -638,7 +620,9 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private redrawCanvas() {
-    if (!this.ctx) return;
+    if (!this.ctx) {
+      return;
+    }
     
     // Clear canvas efficiently
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -651,5 +635,7 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     
     // Draw devices on top
     this.drawDevices();
+    
   }
 }
+
