@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DeviceType } from '../models/device.model';
+import { DeviceType, DEVICE_TYPES, DEVICE_VALIDATION_RANGES } from '../models/device.model';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -99,14 +99,10 @@ export class ValidationService {
     if (!type) {
       errors.push('Device type is required');
     } else {
-      const validTypes: DeviceType[] = [
-        'Router', 'Switch', 'Server', 'Workstation', 'Firewall', 'Access Point', 'Load Balancer'
-      ];
-      
       // Type assertion is safe here since we've already checked it's not empty
       const deviceType = type as DeviceType;
-      if (!validTypes.includes(deviceType)) {
-        errors.push(`Device type must be one of: ${validTypes.join(', ')}`);
+      if (!DEVICE_TYPES.includes(deviceType)) {
+        errors.push(`Device type must be one of: ${DEVICE_TYPES.join(', ')}`);
       }
     }
 
@@ -159,10 +155,10 @@ export class ValidationService {
 
     if (pingRate === null || pingRate === undefined || isNaN(pingRate)) {
       errors.push('Ping rate is required');
-    } else if (pingRate < 1) {
-      errors.push('Ping rate must be at least 1 ms');
-    } else if (pingRate > 1000) {
-      errors.push('Ping rate must be less than 1000 ms');
+    } else if (pingRate < DEVICE_VALIDATION_RANGES.pingRate.min) {
+      errors.push(`Ping rate must be at least ${DEVICE_VALIDATION_RANGES.pingRate.min} ms`);
+    } else if (pingRate > DEVICE_VALIDATION_RANGES.pingRate.max) {
+      errors.push(`Ping rate must be less than ${DEVICE_VALIDATION_RANGES.pingRate.max} ms`);
     } else if (!Number.isInteger(pingRate)) {
       errors.push('Ping rate must be a whole number');
     }
@@ -181,10 +177,10 @@ export class ValidationService {
 
     if (latency === null || latency === undefined || isNaN(latency)) {
       errors.push('Latency is required');
-    } else if (latency < 0) {
-      errors.push('Latency cannot be negative');
-    } else if (latency > 500) {
-      errors.push('Latency must be less than 500 ms');
+    } else if (latency < DEVICE_VALIDATION_RANGES.latency.min) {
+      errors.push(`Latency cannot be negative`);
+    } else if (latency > DEVICE_VALIDATION_RANGES.latency.max) {
+      errors.push(`Latency must be less than ${DEVICE_VALIDATION_RANGES.latency.max} ms`);
     } else if (!Number.isInteger(latency)) {
       errors.push('Latency must be a whole number');
     }
@@ -203,10 +199,10 @@ export class ValidationService {
 
     if (trafficLoad === null || trafficLoad === undefined || isNaN(trafficLoad)) {
       errors.push('Traffic load is required');
-    } else if (trafficLoad < 0) {
-      errors.push('Traffic load cannot be negative');
-    } else if (trafficLoad > 100) {
-      errors.push('Traffic load cannot exceed 100%');
+    } else if (trafficLoad < DEVICE_VALIDATION_RANGES.trafficLoad.min) {
+      errors.push(`Traffic load cannot be negative`);
+    } else if (trafficLoad > DEVICE_VALIDATION_RANGES.trafficLoad.max) {
+      errors.push(`Traffic load cannot exceed ${DEVICE_VALIDATION_RANGES.trafficLoad.max}%`);
     } else if (!Number.isInteger(trafficLoad)) {
       errors.push('Traffic load must be a whole number');
     }

@@ -1,8 +1,9 @@
-import { Injectable, signal, computed, OnDestroy } from '@angular/core';
+import { Injectable, signal, computed, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, interval, switchMap, startWith, catchError, of, Subscription } from 'rxjs';
 import { Device } from '../models/device.model';
 import { Connection } from '../models/connection.model';
+import { BrowserCompatibilityService } from './browser-compatibility.service';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,8 @@ export class DeviceService implements OnDestroy {
   readonly failedConnections = computed(() => 
     this.connectionsSignal().filter(connection => connection.status === 'failed')
   );
+
+  private browserCompatibilityService = inject(BrowserCompatibilityService);
 
   constructor(private http: HttpClient) {
     this.startPolling();
@@ -150,7 +153,7 @@ export class DeviceService implements OnDestroy {
       setTimeout(() => {
         const newDevice: Device = {
           ...device,
-          id: crypto.randomUUID(),
+          id: this.browserCompatibilityService.generateUUID(),
           lastUpdated: new Date()
         };
         observer.next(newDevice);

@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DeviceDisplayComponent } from '../network-canvas/device-display/device-display';
 import { NetworkCanvasComponent } from '../network-canvas/network-canvas';
 import { DeviceService } from '../services/device.service';
-import { DemoDataService } from '../services/demo-data.service';
-import { Device } from '../models/device.model';
-import { Connection } from '../models/connection.model';
-import { environment } from '../../environments/environment';
+import { DataInitializationService } from '../services/data-initialization.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -18,7 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private deviceService = inject(DeviceService);
-  private demoDataService = inject(DemoDataService);
+  private dataInitializationService = inject(DataInitializationService);
   private destroyRef = inject(DestroyRef);
   private connectionsAdded = false;
   private effectRef?: EffectRef;
@@ -31,7 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       
       // Add connections if we have devices but no connections yet
       if (devices.length > 0 && connections.length === 0 && !this.connectionsAdded) {
-        this.demoDataService.seedConnections('medium');
+        // Connection seeding is now handled by the data initialization service
         this.connectionsAdded = true;
       }
       
@@ -42,15 +39,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() {
-    // Initialize demo data through the dedicated service using environment configuration
-    this.demoDataService.initializeDemoData(environment.demoData);
+  async ngOnInit() {
+    try {
+      // Initialize application data through the dedicated service
+      await this.dataInitializationService.initializeApplicationData();
+    } catch (error) {
+      console.error('Failed to initialize application data:', error);
+      // Handle error gracefully - app can still function without demo data
+    }
   }
 
-  // Method to reset demo data (useful for testing or when devices are reloaded)
-  resetDemoData(): void {
-    this.connectionsAdded = false;
-    this.demoDataService.resetDemoData(environment.demoData);
+  // Method to reset application data (useful for testing or when devices are reloaded)
+  async resetApplicationData(): Promise<void> {
+    try {
+      this.connectionsAdded = false;
+      await this.dataInitializationService.resetApplicationData();
+    } catch (error) {
+      console.error('Failed to reset application data:', error);
+      throw error;
+    }
   }
 
   ngOnDestroy(): void {

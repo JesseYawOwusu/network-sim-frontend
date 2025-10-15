@@ -1,14 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { DeviceService } from '../../services/device.service';
 import { ValidationService, DeviceFormData } from '../../services/validation.service';
-import { Device, DeviceType } from '../../models/device.model';
+import { Device, DeviceType, DEVICE_TYPES } from '../../models/device.model';
+import { DeviceFormComponent } from './device-form/device-form.component';
 
 @Component({
   selector: 'app-device-display',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, DeviceFormComponent],
   templateUrl: './device-display.html',
   styleUrls: ['./device-display.css']
 })
@@ -52,9 +52,7 @@ export class DeviceDisplayComponent {
   readonly fieldErrors = signal<Record<string, string[]>>({});
 
   // Available device types for forms
-  readonly deviceTypes: DeviceType[] = [
-    'Router', 'Switch', 'Server', 'Workstation', 'Firewall', 'Access Point', 'Load Balancer'
-  ];
+  readonly deviceTypes = DEVICE_TYPES;
 
   // Helper methods for form field updates with validation
   updateNewDeviceForm(field: keyof DeviceFormData, value: any): void {
@@ -181,13 +179,9 @@ export class DeviceDisplayComponent {
     });
   }
 
-  saveDevice(): void {
-    if (!this.isNewDeviceFormValid()) {
-      return; // Don't save if form is invalid
-    }
-
-    const form = this.newDeviceForm();
-    const { name, type, ip, pingRate, latency, trafficLoad } = form;
+  // Event handlers for the new form component
+  onNewDeviceSubmit(formData: DeviceFormData): void {
+    const { name, type, ip, pingRate, latency, trafficLoad } = formData;
     
     const deviceToAdd: Omit<Device, 'id' | 'lastUpdated'> = {
       name,
@@ -206,9 +200,40 @@ export class DeviceDisplayComponent {
         this.toggleAddForm();
       },
       error: (error) => {
-        // Handle error silently or show user-friendly message
+        console.error('Failed to add device:', error);
+        // Could show user-friendly error message here
       }
     });
+  }
+
+  onNewDeviceFormChange(formData: DeviceFormData): void {
+    this.newDeviceForm.set(formData);
+  }
+
+  onEditDeviceSubmit(deviceId: string, formData: DeviceFormData): void {
+    const { name, type, ip, pingRate, latency, trafficLoad } = formData;
+    
+    this.updateDevice(deviceId, { 
+      name, 
+      type: type as DeviceType, 
+      ip, 
+      pingRate, 
+      latency, 
+      trafficLoad 
+    });
+  }
+
+  onEditDeviceFormChange(formData: DeviceFormData): void {
+    this.editDeviceForm.set(formData);
+  }
+
+  // Legacy method for backward compatibility
+  saveDevice(): void {
+    if (!this.isNewDeviceFormValid()) {
+      return; // Don't save if form is invalid
+    }
+
+    this.onNewDeviceSubmit(this.newDeviceForm());
   }
 
   updateDevice(id: string, updates: Partial<Device>): void {

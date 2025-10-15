@@ -1,22 +1,26 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceService } from '../services/device.service';
+import { TooltipService } from '../services/tooltip.service';
 import { Device } from '../models/device.model';
 import { Connection } from '../models/connection.model';
+import { CANVAS_CONFIG, DEVICE_ICONS, ANIMATION_TIMING } from './canvas-constants';
 
 @Component({
   selector: 'app-network-canvas',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   templateUrl: './network-canvas.html',
-  styleUrls: ['./network-canvas.css']
+  styleUrls: ['./network-canvas.css', './accessible-tooltip.css']
 })
 export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('networkCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D | null;
   private deviceService = inject(DeviceService);
+  private tooltipService = inject(TooltipService);
   private animationId: number | null = null;
   private lastTime = 0;
+  private currentTooltip: HTMLElement | null = null;
   
   // Animation state
   private hoveredDevice: string | null = null;
@@ -57,12 +61,9 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     this.ctx = canvas.getContext('2d');
 
     if (this.ctx) {
-      console.log('Canvas context initialized');
       this.setupCanvas();
       this.drawGrid();
       this.startAnimationLoop();
-    } else {
-      console.error('Failed to get canvas context');
     }
   }
 
@@ -122,29 +123,29 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private easeInOutCubic(t: number): number {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return ANIMATION_TIMING.EASE_IN_OUT_CUBIC(t);
   }
 
   private setupCanvas() {
     if (!this.ctx) return;
     
-    // Set canvas size to match HTML template
+    // Set canvas size using constants
     const canvas = this.ctx.canvas;
-    canvas.width = 800;
-    canvas.height = 500;
+    canvas.width = CANVAS_CONFIG.WIDTH;
+    canvas.height = CANVAS_CONFIG.HEIGHT;
     
-    // Set default styles
+    // Set default styles using constants
     this.ctx.lineWidth = 1;
-    this.ctx.font = '12px Arial';
+    this.ctx.font = `${CANVAS_CONFIG.DEVICE_FONT_SIZE}px ${CANVAS_CONFIG.FONTS.PRIMARY}`;
     this.ctx.textAlign = 'center';
   }
 
   private drawGrid() {
     if (!this.ctx) return;
     
-    const spacing = 50;
-    this.ctx.strokeStyle = '#e0e0e0';
-    this.ctx.lineWidth = 0.5;
+    const spacing = CANVAS_CONFIG.GRID_SPACING;
+    this.ctx.strokeStyle = CANVAS_CONFIG.GRID_COLOR;
+    this.ctx.lineWidth = CANVAS_CONFIG.GRID_LINE_WIDTH;
 
     // Draw vertical lines
     for (let x = 0; x < this.ctx.canvas.width; x += spacing) {
@@ -558,26 +559,47 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
       const distance = Math.sqrt(
         Math.pow(x - device.position.x, 2) + Math.pow(y - device.position.y, 2)
       );
-      return distance <= 25; // Device radius
+      return distance <= CANVAS_CONFIG.DEVICE_RADIUS;
     });
     
     if (hoveredDevice) {
       this.hoveredDevice = hoveredDevice.id;
       this.hoveredDeviceInfo.set(hoveredDevice);
       
-      // Position tooltip near mouse cursor
-      const tooltipX = event.clientX + 10;
-      const tooltipY = event.clientY - 10;
-      this.tooltipPosition.set({ x: tooltipX, y: tooltipY });
+      // Create tooltip with proper positioning and accessibility
+      const tooltipContent = `${hoveredDevice.name} (${hoveredDevice.type})\nIP: ${hoveredDevice.ip}\nStatus: ${hoveredDevice.status}`;
+      
+      // Remove existing tooltip
+      if (this.currentTooltip) {
+        this.tooltipService.hideTooltip(this.currentTooltip);
+      }
+      
+      // Show new tooltip
+      this.currentTooltip = this.tooltipService.showTooltip(
+        tooltipContent,
+        { x: event.clientX, y: event.clientY }
+      );
     } else {
       this.hoveredDevice = null;
       this.hoveredDeviceInfo.set(null);
+      
+      // Hide tooltip
+      if (this.currentTooltip) {
+        this.tooltipService.hideTooltip(this.currentTooltip);
+        this.currentTooltip = null;
+      }
     }
   }
 
   onCanvasMouseLeave(): void {
     this.hoveredDevice = null;
     this.hoveredDeviceInfo.set(null);
+    
+    // Hide tooltip when mouse leaves canvas
+    if (this.currentTooltip) {
+      this.tooltipService.hideTooltip(this.currentTooltip);
+      this.currentTooltip = null;
+    }
   }
 
   private isPointOnLine(px: number, py: number, x1: number, y1: number, x2: number, y2: number, tolerance: number): boolean {
@@ -617,6 +639,11 @@ export class NetworkCanvasComponent implements AfterViewInit, OnDestroy {
     // Clean up animation loop
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
+    }
+    
+    // Clean up tooltip
+    if (this.currentTooltip) {
+      this.tooltipService.hideTooltip(this.currentTooltip);
     }
   }
 
