@@ -25,26 +25,26 @@
         
         <div class="grid gap-10 p-5 pb-0">
             <div>
-                <input formControlName="username" type="text" placeholder="Username" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="username" required type="text" placeholder="Username" class="text-sm text-gray-400 w-full outline-none"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
             </div>
             <div>
-                <input formControlName="email" type="email" placeholder="Email" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="email" required type="email" placeholder="Email" class="text-sm text-gray-400 w-full outline-none"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
             </div>
             <div>
-                <input formControlName="password" type="password" placeholder="Password" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="password" required type="password" placeholder="Password" class="text-sm text-gray-400 w-full outline-none"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
             </div>
             <div>
-                <input formControlName="confirmPassword" type="password" placeholder="Confirm Password" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="confirmPassword" required type="password" placeholder="Confirm Password" class="text-sm text-gray-400 w-full outline-none"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
             </div>
         </div>
 
         <div class="cursor-pointer">
             
-            <button type="submit"  class="text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3"> Sign Up</button>
+            <button type="submit" class="text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3"> Sign Up</button>
             <p class="text-center font-light mt-0">Already have an account? <span [routerLink]="['/login']" class="text-teal-300">Login</span></p>
         </div>
         </form>
