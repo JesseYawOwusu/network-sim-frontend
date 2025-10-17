@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-import {Login} from './login/login';
-import {Signup} from './signup/signup';
+import {Login} from './authentication/login/login';
+import {Signup} from './authentication/signup/signup';
+
+import {authRoutes} from './authentication/auth.routes';
 
 export const routes: Routes = [
-    {path:'', component: Login},
-    {path:'signup', component: Signup}
+    {path:'', children:authRoutes}
 ];
