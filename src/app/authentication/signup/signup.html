@@ -21,21 +21,34 @@
         </div>
         
         <div class="grid gap-10 p-5 pb-0 ">
-            <div>
-                <input formControlName="username" required type="text" placeholder="Username" class="text-sm text-gray-400 w-full outline-none"/>
+            <div class="active:cursor-teal-600">
+                <input formControlName="username" required type="text" placeholder="Username" class="text-sm text-gray-400 w-full outline-none  focus:text-black "/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
+                @if(signupForm.get('username')?.invalid && signupForm.get('username')?.touched){
+                    <p class=" text-red-700 text-sm italic">Please enter a suitable username</p>
+                }
             </div>
             <div>
-                <input formControlName="email" required type="email" placeholder="Email" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="email" required type="email" placeholder="Email" class="text-sm text-gray-400 w-full outline-none focus:text-black"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
+                @if(signupForm.get('email')?.invalid && signupForm.get('email')?.touched){
+                    <p class=" text-red-700 text-sm italic">Please enter a suitable email</p>
+                }
             </div>
             <div>
-                <input formControlName="password" required type="password" placeholder="Password" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="password" required type="password" placeholder="Password" class="text-sm text-gray-400 w-full outline-none focus:text-black"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
+                @if(signupForm.get('password')?.invalid && signupForm.get('password')?.touched){
+                    <p class=" text-red-700 italic text-sm">Please enter a suitable password</p>
+                }
             </div>
             <div>
-                <input formControlName="confirmPassword" required type="password" placeholder="Confirm Password" class="text-sm text-gray-400 w-full outline-none"/>
+                <input formControlName="confirmPassword" required type="password" placeholder="Confirm Password" class="text-sm text-gray-400 w-full outline-none focus:text-black"/>
                 <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
+                
+                @if(signupForm.hasError('passwordMismatch') && signupForm.get('confirmPassword')?.touched && signupForm.get('password')?.touched){
+                    <p class=" text-red-700 italic text-sm">Passwords do not match, please provide an accurate password</p>
+                }
             </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { Component,OnInit, inject} from '@angular/core';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
-
+import {confirmPasswordVaidator} from '../validators/confirmPassword';
 
 @Component({
   selector: 'app-signup',
@@ -24,20 +24,21 @@ export class Signup implements OnInit {
   ngOnInit(){
     this.signupForm=new FormGroup({
       username:new FormControl('',[Validators.required]),
-      email:new FormControl(''),
-      password:new FormControl('',[Validators.maxLength(8),Validators.minLength(4)]),
-      confirmPassword:new FormControl('',[Validators.maxLength(8),Validators.minLength(4)])
-    })
-  }
-
-  confirmPassword(){
-
-    
+      email:new FormControl('',[Validators.required,Validators.email]),
+      password:new FormControl('',[Validators.required]),
+      confirmPassword:new FormControl('',[Validators.required])
+    },{validators:confirmPasswordVaidator});
   }
 
   submitSignup(){
-    console.log(this.signupForm.value);
+    
+    if(this.signupForm.valid){
+      console.log(this.signupForm.value);
+      this.afterSubmit();
+  }else{
+      this.signupForm.markAllAsTouched();
   }
+}
   
   afterSubmit(){
     this.router.navigate(['/login'])
