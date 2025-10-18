@@ -1,0 +1,5 @@
+@media (width: 1024px ) and (height: 768px) {
+  .exact-1024 {
+    transform: scale(0);
+  }
+}
