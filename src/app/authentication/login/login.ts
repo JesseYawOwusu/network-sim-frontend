@@ -1,11 +1,46 @@
-import { Component } from '@angular/core';
-
+import { Component ,OnInit, inject} from '@angular/core';
+import {RouterLink,Router} from "@angular/router";
+import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
+import {confirmPasswordVaidator} from '../validators/confirmPassword';
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [ReactiveFormsModule,RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
+  private router=inject(Router);
+
+  loginForm:FormGroup=new FormGroup({
+      username:new FormControl(''),
+      password:new FormControl(''),
+      
+  });
+
+  constructor(){}
+
+  ngOnInit(){
+    this.loginForm=new FormGroup({
+      username:new FormControl('',[Validators.required]),
+      password:new FormControl('',[Validators.required]),
+    });
+  }
+
+  submitLogin(){
+    if(this.loginForm.valid){
+      console.log(this.loginForm.value);
+      this.afterSubmit();
+  }else{
+      this.loginForm.markAllAsTouched();
+  }
+}
+  
+  afterSubmit(){
+    this.router.navigate(['/signup'])
+
+  }
+  
+   
+
 
 }
