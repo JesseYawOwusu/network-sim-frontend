@@ -36,7 +36,7 @@ export class Signup implements OnInit {
 }
   
   afterSubmit(){
-    this.router.navigate(['/login'])
+    this.router.navigate(['/auth/login'])
 
   }
   

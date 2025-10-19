@@ -32,7 +32,7 @@ export class Login {
 }
   
   afterSubmit(){
-    this.router.navigate(['/signup'])
+    this.router.navigate(['/auth/signup'])
 
   }
   
