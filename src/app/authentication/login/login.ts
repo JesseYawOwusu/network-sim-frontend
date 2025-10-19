@@ -1,7 +1,7 @@
 import { Component ,OnInit, inject} from '@angular/core';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
-import {confirmPasswordVaidator} from '../validators/confirmPassword';
+
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule,RouterLink],
@@ -10,12 +10,8 @@ import {confirmPasswordVaidator} from '../validators/confirmPassword';
 })
 export class Login {
   private router=inject(Router);
+  loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
 
-  loginForm:FormGroup=new FormGroup({
-      username:new FormControl(''),
-      password:new FormControl(''),
-      
-  });
 
   constructor(){}
 

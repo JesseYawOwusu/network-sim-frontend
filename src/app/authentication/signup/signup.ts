@@ -1,7 +1,7 @@
 import { Component,OnInit, inject} from '@angular/core';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
-import {confirmPasswordVaidator} from '../validators/confirmPassword';
+import {confirmPasswordValidator} from '../validators/confirmPassword';
 
 @Component({
   selector: 'app-signup',
@@ -22,7 +22,7 @@ export class Signup implements OnInit {
       email:new FormControl('',[Validators.required,Validators.email]),
       password:new FormControl('',[Validators.required]),
       confirmPassword:new FormControl('',[Validators.required])
-    },{validators:confirmPasswordVaidator});
+    },{validators:confirmPasswordValidator});
   }
 
   submitSignup(){
