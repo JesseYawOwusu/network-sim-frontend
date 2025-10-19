@@ -12,12 +12,7 @@ import {confirmPasswordVaidator} from '../validators/confirmPassword';
 export class Signup implements OnInit {
   private router=inject(Router);
 
-  signupForm:FormGroup=new FormGroup({
-      username:new FormControl(''),
-      email:new FormControl(''),
-      password:new FormControl(''),
-      confirmPassword:new FormControl('')
-  });
+  signupForm!:FormGroup<{username:FormControl<string|null>,email:FormControl<string|null>,password:FormControl<string|null>,confirmPassword:FormControl<string|null>}>;
 
   constructor(){}
 
