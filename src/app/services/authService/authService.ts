@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import moment from "moment";
 import {HttpClient} from '@angular/common/http';
 import { Observable,tap,shareReplay } from 'rxjs';
+import {User} from '../../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,15 @@ export class AuthServices {
       shareReplay()
     )
       
+  }
+
+  public signup(newUser:User){
+    return this.http.post('https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/signup',newUser)
+    .pipe(
+      tap(()=>this.setLoggedInUser),
+      shareReplay()
+    )
+
   }
 
   private setLoggedInUser(authResponse:any){
