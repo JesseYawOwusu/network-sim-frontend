@@ -1,16 +1,18 @@
-import { Component ,OnInit, inject} from '@angular/core';
+import { Component ,OnInit, ViewChild, inject,AfterViewInit} from '@angular/core';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
+import { InputComponent } from '../input-component/input-component';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule,RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, InputComponent],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class Login {
+export class Login implements OnInit {
   private router=inject(Router);
   loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
+ 
 
 
   constructor(){}
@@ -27,16 +29,12 @@ export class Login {
       console.log(this.loginForm.value);
       this.afterSubmit();
   }else{
-      this.loginForm.markAllAsTouched();
+    console.log(this.loginForm.value);
+    this.loginForm.markAllAsTouched(); 
   }
 }
   
   afterSubmit(){
     this.router.navigate(['/auth/signup'])
-
   }
-  
-   
-
-
 }

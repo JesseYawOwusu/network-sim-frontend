@@ -1,1 +1,11 @@
-<p>input-component works!</p>
+<div class="active:cursor-teal-600">
+    <input [formControl]="controlName" required type="text" [placeholder]="label" class="text-sm text-gray-400 w-full outline-none  focus:text-black "/>
+    <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
+    @if(controlName.invalid && (controlName.touched || controlName.dirty
+    )
+    ){
+        @for(err of controlName.errors|keyvalue; track err.key){
+            <p class=" text-red-700 text-sm italic">{{errorMessages[err.key]}}</p>
+        }
+}
+</div>

@@ -1,5 +1,7 @@
 <div class="h-screen flex items-center justify-center overflow-hidden scrollbar-hide ">
 <div class="flex gap-10 justify-evenly items-center overflow-hidden w-[90%]  rounded-2xl">
+    
+    
   
     <div class="hidden min-lg:grid w-[50%] bg-white">
         <div class="flex gap-5 font-bold justify-center items-center text-3xl mb-5 ">
@@ -20,18 +22,10 @@
         
         <div class="grid gap-10 p-5 pb-0 ">
             <div class="active:cursor-teal-600">
-                <input formControlName="username" required type="text" placeholder="Username" class="text-sm text-gray-400 w-full outline-none  focus:text-black "/>
-                <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
-                @if(loginForm.get('username')?.invalid && loginForm.get('username')?.touched){
-                    <p class=" text-red-700 text-sm italic">Please enter a suitable username</p>
-                }
+                <app-input-component [controlName]="loginForm.controls.username" label="username"></app-input-component>  
             </div>
             <div>
-                <input formControlName="password" required type="password" placeholder="Password" class="text-sm text-gray-400 w-full outline-none focus:text-black"/>
-                <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
-                @if(loginForm.get('password')?.invalid && loginForm.get('password')?.touched){
-                    <p class=" text-red-700 italic text-sm">Please enter a suitable password</p>
-                }
+                <app-input-component [controlName]="loginForm.controls.password" label="password"></app-input-component> 
             </div>
         </div>
 
