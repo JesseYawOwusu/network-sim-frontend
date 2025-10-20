@@ -45,4 +45,11 @@ export class DeviceListComponent {
         return 'Network device';
     }
   }
+
+  onDragStart(event: DragEvent, deviceType: DeviceType): void {
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', deviceType);
+      event.dataTransfer.effectAllowed = 'copy';
+    }
+  }
 }

@@ -100,7 +100,39 @@
   background: white;
 }
 
-.canvas-area p {
+.canvas-area {
+  position: relative;
+}
+
+.canvas-placeholder p {
   color: #999;
   margin: 0;
+}
+
+.device-on-canvas {
+  position: absolute;
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: move;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+  text-align: center;
+}
+
+.device-on-canvas:hover {
+  border-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.device-on-canvas .device-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.device-on-canvas .device-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
 }

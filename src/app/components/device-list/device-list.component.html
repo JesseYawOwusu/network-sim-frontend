@@ -4,6 +4,8 @@
     <div 
       *ngFor="let deviceType of deviceTypes" 
       class="device-item"
+      draggable="true"
+      (dragstart)="onDragStart($event, deviceType)"
     >
       <div class="device-icon">{{ getDeviceIcon(deviceType) }}</div>
       <div class="device-info">

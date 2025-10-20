@@ -33,6 +33,14 @@
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
 }
 
+.device-item[draggable="true"] {
+  cursor: grab;
+}
+
+.device-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
 .device-icon {
   font-size: 24px;
   margin-right: 12px;

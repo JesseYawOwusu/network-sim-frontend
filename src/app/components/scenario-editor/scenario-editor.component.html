@@ -55,8 +55,23 @@
 
     <div class="canvas-section">
       <h2>Network Canvas</h2>
-      <div class="canvas-area">
-        <p>Canvas area - devices will be placed here</p>
+      <div 
+        class="canvas-area"
+        (dragover)="onDragOver($event)"
+        (drop)="onDrop($event)"
+      >
+        <div *ngIf="scenario.devices.length === 0" class="canvas-placeholder">
+          <p>Canvas area - drag devices here</p>
+        </div>
+        <div 
+          *ngFor="let device of scenario.devices" 
+          class="device-on-canvas"
+          [style.left.px]="device.position.x"
+          [style.top.px]="device.position.y"
+        >
+          <div class="device-icon">{{ getDeviceIcon(device.type) }}</div>
+          <div class="device-name">{{ device.name }}</div>
+        </div>
       </div>
     </div>
   </div>
