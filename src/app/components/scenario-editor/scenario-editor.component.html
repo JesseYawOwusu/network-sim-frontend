@@ -1,0 +1,59 @@
+<div class="scenario-editor">
+  <div class="editor-header">
+    <h1>Scenario Editor</h1>
+    <p>Create and configure network simulation scenarios</p>
+  </div>
+
+  <div class="editor-content">
+    <div class="form-section">
+      <h2>Scenario Details</h2>
+      
+      <div class="form-group">
+        <label for="scenarioName">Scenario Name</label>
+        <input 
+          id="scenarioName"
+          type="text" 
+          [(ngModel)]="scenario.name" 
+          placeholder="Enter scenario name"
+          class="form-input"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">Difficulty</label>
+        <select 
+          id="difficulty"
+          [(ngModel)]="scenario.difficulty" 
+          class="form-select"
+        >
+          <option *ngFor="let option of difficultyOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="timeLimit">Time Limit (minutes)</label>
+        <input 
+          id="timeLimit"
+          type="number" 
+          [(ngModel)]="scenario.timeLimit" 
+          min="1"
+          max="120"
+          class="form-input"
+        >
+      </div>
+
+      <button (click)="saveScenario()" class="save-button">
+        Save Scenario
+      </button>
+    </div>
+
+    <div class="canvas-section">
+      <h2>Network Canvas</h2>
+      <div class="canvas-area">
+        <p>Canvas area - devices will be placed here</p>
+      </div>
+    </div>
+  </div>
+</div>
