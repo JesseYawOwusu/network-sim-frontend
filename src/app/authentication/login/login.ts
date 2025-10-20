@@ -14,18 +14,18 @@ export class Login implements OnInit {
   private router=inject(Router);
   private authService=inject(AuthServices)
 
-  public loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
+  public loginForm!: FormGroup<{ email: FormControl<string | null>; password: FormControl<string | null>; }>;
 
   ngOnInit(){
     this.loginForm=new FormGroup({
-      username:new FormControl('',[Validators.required]),
+      email:new FormControl('',[Validators.required,Validators.email]),
       password:new FormControl('',[Validators.required]),
     });
   }
 
   public submitLogin(){
     if(this.loginForm.valid){
-      this.authService.login(this.loginForm.controls.username.value??'',this.loginForm.controls.password.value??'')
+      this.authService.login(this.loginForm.controls.email.value??'',this.loginForm.controls.password.value??'')
       .subscribe({
         next:()=> {
           this.router.navigate(['/auth/signup'])
