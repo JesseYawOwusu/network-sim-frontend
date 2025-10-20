@@ -28,7 +28,7 @@ export class Signup implements OnInit {
     },{validators:confirmPasswordValidator});
   }
 
-  submitSignup(){
+  public submitSignup(){
     
     if(this.signupForm.valid){
       
@@ -38,7 +38,7 @@ export class Signup implements OnInit {
   }
 }
   
-  afterSubmit(){
+  public afterSubmit(){
     this.router.navigate(['/auth/login'])
   }
   

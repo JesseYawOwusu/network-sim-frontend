@@ -11,7 +11,7 @@ import { InputComponent } from '../input-component/input-component';
 })
 export class Login implements OnInit {
   private router=inject(Router);
-  loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
+  public loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
 
   ngOnInit(){
     this.loginForm=new FormGroup({
@@ -20,7 +20,7 @@ export class Login implements OnInit {
     });
   }
 
-  submitLogin(){
+  public submitLogin(){
     if(this.loginForm.valid){
      
       this.afterSubmit();
@@ -30,7 +30,7 @@ export class Login implements OnInit {
   }
 }
   
-  afterSubmit(){
+  public afterSubmit(){
     this.router.navigate(['/auth/signup'])
   }
 }

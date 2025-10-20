@@ -12,7 +12,7 @@ export class InputComponent {
   @Input() label="";
  
 
-  errorMessages:Record<string, string>={
+  public errorMessages:Record<string, string>={
     required: 'This field is required.',
     email: 'Please enter a valid email address.',
     passwordMismatch: 'Passwords do not match.'
