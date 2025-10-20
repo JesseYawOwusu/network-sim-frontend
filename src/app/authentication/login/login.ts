@@ -12,10 +12,6 @@ import { InputComponent } from '../input-component/input-component';
 export class Login implements OnInit {
   private router=inject(Router);
   loginForm!: FormGroup<{ username: FormControl<string | null>; password: FormControl<string | null>; }>;
- 
-
-
-  constructor(){}
 
   ngOnInit(){
     this.loginForm=new FormGroup({
