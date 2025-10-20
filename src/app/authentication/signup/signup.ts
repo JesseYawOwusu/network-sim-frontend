@@ -31,17 +31,15 @@ export class Signup implements OnInit {
   submitSignup(){
     
     if(this.signupForm.valid){
-      console.log("Signed up",this.signupForm.value);
+      
       this.afterSubmit();
   }else{
-    console.log("Not signed up",this.signupForm.value);
       this.signupForm.markAllAsTouched();
   }
 }
   
   afterSubmit(){
     this.router.navigate(['/auth/login'])
-
   }
   
    

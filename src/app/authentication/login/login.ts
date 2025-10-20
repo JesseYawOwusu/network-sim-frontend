@@ -26,10 +26,10 @@ export class Login implements OnInit {
 
   submitLogin(){
     if(this.loginForm.valid){
-      console.log(this.loginForm.value);
+     
       this.afterSubmit();
   }else{
-    console.log(this.loginForm.value);
+   
     this.loginForm.markAllAsTouched(); 
   }
 }
