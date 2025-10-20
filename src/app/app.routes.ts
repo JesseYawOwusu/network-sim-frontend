@@ -1,3 +1,8 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+
+import {authRoutes} from './authentication/auth.routes';
+
+export const routes: Routes = [
+    {path:'auth', children:authRoutes},
+];
