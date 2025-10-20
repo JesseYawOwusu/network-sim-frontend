@@ -4,6 +4,7 @@ import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
 import {confirmPasswordValidator} from '../validators/confirmPassword';
 import {InputComponent} from '../input-component/input-component';
+import {AuthServices} from '../../services/authService/authService';
 
 @Component({
   selector: 'app-signup',
@@ -13,6 +14,7 @@ import {InputComponent} from '../input-component/input-component';
 })
 export class Signup implements OnInit {
   private router=inject(Router);
+  private authService=inject(AuthServices)
 
   signupForm!:FormGroup<{username:FormControl<string|null>,email:FormControl<string|null>,password:FormControl<string|null>,confirmPassword:FormControl<string|null>,role:FormControl<string|null>}>;
 
@@ -31,6 +33,21 @@ export class Signup implements OnInit {
   public submitSignup(){
     
     if(this.signupForm.valid){
+      const newUser={
+        username:this.signupForm.controls.username.value || '',
+        password:this.signupForm.controls.password.value || '',
+        email:this.signupForm.controls.email.value||'',
+        role:this.signupForm.controls.role.value||''
+      }
+      this.authService.signup(newUser)
+      .subscribe({
+        next:()=> {
+          this.router.navigate(['/auth/signup'])
+          console.log('User logged in successfully')
+        },
+        error:(err)=>console.log('We received this login error: ',err),
+        complete:()=>console.log('no errors, we are done logging in the user')
+      })
       
       this.afterSubmit();
   }else{
