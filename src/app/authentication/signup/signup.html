@@ -1,11 +1,5 @@
 <div class="h-screen flex items-center justify-center overflow-hidden scrollbar-hide ">
 <div class="flex gap-10 justify-evenly items-center overflow-hidden w-[90%]  rounded-2xl">
-    
-    
-    
-    
-   
-
     <div class="hidden min-lg:grid w-[50%] bg-white">
         <div class="flex gap-5 font-bold justify-center items-center text-3xl mb-5 ">
             <p>Connect.</p>
@@ -31,8 +25,8 @@
                 <app-input-component [controlName]="signupForm.controls.password" label="Password"></app-input-component>
                 <div>
                 <app-input-component [controlName]="signupForm.controls.confirmPassword" label="Confirm Password"></app-input-component>
-                @if(signupForm.invalid && (signupForm.errors?.['passwordMismatch']==true)){
-                    <p class=" text-red-700 text-sm italic">Passwords are not the same</p>
+                @if((signupForm.errors?.['passwordMismatch']==true)){
+                    <p class=" text-red-700 text-sm italic">Passwords do not match</p>
                 }
                 </div>
                 <app-input-component [controlName]="signupForm.controls.role" label="Role"></app-input-component>
@@ -40,7 +34,7 @@
 
         <div class="cursor-pointer">
             
-            <button type="submit" class="text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3"> Sign Up</button>
+            <button type="submit" [disabled]="signupForm.invalid" [class]="signupForm.invalid ? 'bg-teal-600/[40%] rounded-md p-2 mt-0 w-13/14 m-3 text-black/[30%]': 'text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3'"> Sign Up</button>
             <p class="text-center font-light mt-0">Already have an account? <span [routerLink]="['/auth/login']" class="text-teal-300">Login</span></p>
         </div>
         </form>

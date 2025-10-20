@@ -31,7 +31,7 @@
 
         <div class="cursor-pointer">
             
-            <button type="submit" class="text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3"> Login</button>
+            <button type="submit" [disabled]="loginForm.invalid" [class]="loginForm.invalid ? 'bg-teal-600/[40%] rounded-md p-2 mt-0 w-13/14 m-3 text-black/[30%]': 'text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3'"> Login</button>
             <p class="text-center font-light mt-0">Don't have an account? <span [routerLink]="['/auth/signup']" class="text-teal-300">Create one</span></p>
         </div>
         </form>

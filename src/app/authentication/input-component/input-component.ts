@@ -13,9 +13,9 @@ export class InputComponent {
  
 
   public errorMessages:Record<string, string>={
-    required: 'This field is required.',
-    email: 'Please enter a valid email address.',
-    passwordMismatch: 'Passwords do not match.'
+    required: 'This field is required',
+    email: 'Please enter a valid email address',
+    passwordMismatch: 'Passwords do not match'
   
   }
   static controlName: any;
