@@ -20,8 +20,8 @@
 
 .editor-content {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 30px;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 20px;
 }
 
 .form-section {

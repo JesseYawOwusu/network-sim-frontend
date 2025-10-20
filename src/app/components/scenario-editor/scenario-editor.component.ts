@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario, ScenarioDifficulty } from '../../models/scenario.model';
+import { DeviceListComponent } from '../device-list/device-list.component';
 
 @Component({
   selector: 'app-scenario-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DeviceListComponent],
   templateUrl: './scenario-editor.component.html',
   styleUrl: './scenario-editor.component.css'
 })
