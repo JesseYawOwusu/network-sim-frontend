@@ -3,16 +3,26 @@ import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
 import { InputComponent } from '../input-component/input-component';
 import {AuthServices} from '../../services/authService/authService';
+import { SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert2/ngx-sweetalert2';
+
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, InputComponent],
+  imports: [ReactiveFormsModule, RouterLink, InputComponent,SwalComponent,SwalPortalDirective],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login implements OnInit {
   private router=inject(Router);
-  private authService=inject(AuthServices)
+  private authService=inject(AuthServices);
+
+  public errorMessage='';
+  @ViewChild('errorSwal')
+  errorSwal!:SwalComponent
+
+  constructor(public readonly swalTargets:SwalPortalTargets){
+
+  }
 
   public loginForm!: FormGroup<{ email: FormControl<string | null>; password: FormControl<string | null>; }>;
 
@@ -28,11 +38,20 @@ export class Login implements OnInit {
       this.authService.login(this.loginForm.controls.email.value??'',this.loginForm.controls.password.value??'')
       .subscribe({
         next:()=> {
-          this.router.navigate(['/auth/signup'])
+          
           console.log('User logged in successfully')
         },
-        error:(err)=>console.log('We received this login error: ',err),
-        complete:()=>console.log('no errors, we are done logging in the user')
+        error:(err)=>
+          {
+            this.errorMessage=err.error.error
+            this.errorSwal.fire()
+            console.log('We received this login error: ',err.error.error)
+          },
+        complete:()=>
+          {
+            console.log('no errors, we are done logging in the user')
+            this.router.navigate(['/auth/signup'])
+          }
       }
         
       )

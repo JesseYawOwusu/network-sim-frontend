@@ -20,23 +20,25 @@ export class AuthServices {
     return this.http.post(`${this.API_URL}signin`,{email,password})
     .pipe(
       tap(()=>this.setLoggedInUser),
-      catchError(async (error) => this.handleError(error))
+      // catchError(async (error) => this.handleError(error))
       
     )
       
   }
 
-  public handleError(error:HttpErrorResponse){
-    if(error.error){
-      return throwError(()=>error.error)
-    }
-    return
-  }
+  // public handleError(error:HttpErrorResponse){
+  //   if(error.error){
+  //     return throwError(()=>error.error)
+  //   }
+  //   return
+  // }
 
   public signup(newUser:User){
     return this.http.post(`${this.API_URL}signup`,newUser)
     .pipe(
       tap(()=>this.setLoggedInUser),
+      // catchError(async (error) => this.handleError(error))
+      
     )
 
   }

@@ -11,7 +11,7 @@ import { SwalDirective, SwalComponent, SwalPortalDirective,SwalPortalTargets} fr
 
 @Component({
   selector: 'app-signup',
-  imports: [RouterLink, ReactiveFormsModule, InputComponent, SwalDirective, SwalComponent, SwalPortalDirective],
+  imports: [RouterLink, ReactiveFormsModule, InputComponent,SwalComponent, SwalPortalDirective],
   templateUrl: './signup.html',
   styleUrl: './signup.css'
 })
