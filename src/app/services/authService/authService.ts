@@ -3,7 +3,7 @@ import {OnDestroy} from '@angular/core';
 import moment from "moment";
 import {HttpClient,HttpErrorResponse} from '@angular/common/http';
 import {Subject,tap } from 'rxjs';
-import {catchError, takeUntil} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {User} from '../../models/user.model';
 
 @Injectable({
@@ -36,6 +36,7 @@ export class AuthServices implements OnDestroy{
     return this.http.post(`${this.API_URL}signup`,newUser)
     .pipe(
       tap(()=>this.setLoggedInUser),
+      takeUntil(this._destroy$)
     )
 
   }
