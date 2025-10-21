@@ -1,12 +1,10 @@
 import { Component,OnInit, inject,ViewChild, viewChild} from '@angular/core';
-import {KeyValuePipe} from '@angular/common';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {confirmPasswordValidator} from '../validators/confirmPassword';
 import {InputComponent} from '../input-component/input-component';
 import {AuthServices} from '../../services/authService/authService';
-import { SwalDirective, SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert2/ngx-sweetalert2';
+import { SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert2/ngx-sweetalert2';
 
 
 @Component({
@@ -52,16 +50,13 @@ export class Signup implements OnInit {
       .subscribe({
         next:()=> {
           this.router.navigate(['/auth/signup'])
-          console.log('User logged in successfully')
         },
         error:(err)=>{
           this.errorMessage=err.error.error
           this.errorSwal.fire()
-          console.log('We received this login error: ',err.error.error)
         },
         complete:()=>{
           this.router.navigate(['/auth/login'])
-          console.log('no errors, we are done logging in the user')
     }})
       
       

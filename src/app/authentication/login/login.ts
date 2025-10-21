@@ -37,19 +37,13 @@ export class Login implements OnInit {
     if(this.loginForm.valid){
       this.authService.login(this.loginForm.controls.email.value??'',this.loginForm.controls.password.value??'')
       .subscribe({
-        next:()=> {
-          
-          console.log('User logged in successfully')
-        },
         error:(err)=>
           {
             this.errorMessage=err.error.error
             this.errorSwal.fire()
-            console.log('We received this login error: ',err.error.error)
           },
         complete:()=>
           {
-            console.log('no errors, we are done logging in the user')
             this.router.navigate(['/auth/signup'])
           }
       }
