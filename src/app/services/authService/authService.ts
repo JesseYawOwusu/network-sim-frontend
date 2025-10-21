@@ -9,13 +9,15 @@ import {User} from '../../models/user.model';
   providedIn: 'root'
 })
 export class AuthServices {
+  private API_URL='https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/';
+ 
  
 
   constructor(private http:HttpClient){}
   
 
   public login(email:string,password:string){
-    return this.http.post('https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/signin',{email,password})
+    return this.http.post(`${this.API_URL}signin`,{email,password})
     .pipe(
       tap(()=>this.setLoggedInUser),
       catchError(async (error) => this.handleError(error))
@@ -32,7 +34,7 @@ export class AuthServices {
   }
 
   public signup(newUser:User){
-    return this.http.post('https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/signup',newUser)
+    return this.http.post(`${this.API_URL}signup`,newUser)
     .pipe(
       tap(()=>this.setLoggedInUser),
     )

@@ -1,5 +1,15 @@
 <div class="h-screen flex items-center justify-center overflow-hidden scrollbar-hide ">
 <div class="flex gap-10 justify-evenly items-center overflow-hidden w-[90%]  rounded-2xl">
+    <swal
+        #errorSwal
+        title="An Error occured in Signup"
+        icon="error"
+        
+        >
+        <div *swalPortal="swalTargets.title">
+            <p>{{errorMessage}}</p>
+        </div>
+    </swal>
     <div class="hidden min-lg:grid w-[50%] bg-white">
         <div class="flex gap-5 font-bold justify-center items-center text-3xl mb-5 ">
             <p>Connect.</p>
