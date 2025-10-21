@@ -2,6 +2,10 @@
   <div class="editor-header">
     <h1>Scenario Editor</h1>
     <p>Create and configure network simulation scenarios</p>
+    <div class="backend-status" [class.backend-available]="isBackendAvailable" [class.backend-unavailable]="!isBackendAvailable">
+      <span class="status-indicator"></span>
+      {{ isBackendAvailable ? 'Backend Connected' : 'Backend Offline' }}
+    </div>
   </div>
 
   <div class="editor-content">
@@ -44,9 +48,39 @@
         >
       </div>
 
-      <button (click)="saveScenario()" class="save-button">
-        Save Scenario
-      </button>
+      <div class="button-group">
+        <button (click)="saveScenario()" class="save-button" [disabled]="isSaving">
+          {{ isSaving ? '⏳ Saving...' : '💾 Save Scenario' }}
+        </button>
+        <button (click)="exportScenario()" class="export-button">
+          📤 Export
+        </button>
+        <button (click)="clearScenario()" class="clear-button">
+          🗑️ Clear
+        </button>
+      </div>
+      
+      <div class="backend-actions" *ngIf="isBackendAvailable">
+        <button (click)="loadScenariosFromBackend()" class="load-backend-button">
+          📥 Load from Backend
+        </button>
+        <button (click)="deleteScenarioFromBackend()" class="delete-backend-button" [disabled]="!scenario.id">
+          🗑️ Delete from Backend
+        </button>
+      </div>
+      
+      <div class="load-section">
+        <label for="loadFile" class="load-button">
+          📁 Load Scenario
+        </label>
+        <input 
+          id="loadFile"
+          type="file" 
+          accept=".json"
+          (change)="loadScenario($event)"
+          style="display: none;"
+        >
+      </div>
     </div>
 
     <div class="device-section">
@@ -59,15 +93,45 @@
         class="canvas-area"
         (dragover)="onDragOver($event)"
         (drop)="onDrop($event)"
+        (mousemove)="onCanvasMouseMove($event); onCanvasMouseMoveForConnection($event)"
+        (mouseup)="onCanvasMouseUp()"
+        (mouseleave)="onCanvasMouseUp(); cancelConnectionDrawing()"
       >
+        <!-- SVG for connections -->
+        <svg class="connections-svg" *ngIf="scenario.connections.length > 0 || isDrawingConnection">
+          <!-- Existing connections -->
+          <path 
+            *ngFor="let connection of scenario.connections" 
+            [attr.d]="getConnectionPath(connection)"
+            class="connection-line"
+            [class.connection-active]="connection.status === 'active'"
+            [class.connection-failed]="connection.status === 'failed'"
+            [class.connection-disabled]="connection.status === 'disabled'"
+            (click)="deleteConnection(connection)"
+          />
+          
+          <!-- Connection preview line -->
+          <path 
+            *ngIf="isDrawingConnection && connectionStartDevice"
+            [attr.d]="'M ' + (connectionStartDevice.position.x + 40) + ' ' + (connectionStartDevice.position.y + 30) + ' L ' + connectionPreview.x + ' ' + connectionPreview.y"
+            class="connection-preview"
+          />
+        </svg>
+        
         <div *ngIf="scenario.devices.length === 0" class="canvas-placeholder">
           <p>Canvas area - drag devices here</p>
         </div>
         <div 
           *ngFor="let device of scenario.devices" 
           class="device-on-canvas"
+          [class.dragging]="selectedDevice === device"
+          [class.connection-source]="connectionStartDevice === device"
           [style.left.px]="device.position.x"
           [style.top.px]="device.position.y"
+          (mousedown)="onDeviceMouseDown($event, device)"
+          (dblclick)="onDeviceDoubleClick(device)"
+          (contextmenu)="startConnectionDrawing(device, $event)"
+          (click)="endConnectionDrawing(device, $event)"
         >
           <div class="device-icon">{{ getDeviceIcon(device.type) }}</div>
           <div class="device-name">{{ device.name }}</div>
