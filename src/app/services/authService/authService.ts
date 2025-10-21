@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import moment from "moment";
-import {HttpClient} from '@angular/common/http';
-import { Observable,tap,shareReplay } from 'rxjs';
+import {HttpClient,HttpErrorResponse} from '@angular/common/http';
+import { Observable,tap,throwError } from 'rxjs';
+import {catchError} from 'rxjs/operators';
 import {User} from '../../models/user.model';
 
 @Injectable({
@@ -17,16 +18,23 @@ export class AuthServices {
     return this.http.post('https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/signin',{email,password})
     .pipe(
       tap(()=>this.setLoggedInUser),
-      shareReplay()
+      catchError(async (error) => this.handleError(error))
+      
     )
       
+  }
+
+  public handleError(error:HttpErrorResponse){
+    if(error.error){
+      return throwError(()=>error.error)
+    }
+    return
   }
 
   public signup(newUser:User){
     return this.http.post('https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/signup',newUser)
     .pipe(
       tap(()=>this.setLoggedInUser),
-      shareReplay()
     )
 
   }

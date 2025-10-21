@@ -2,9 +2,11 @@ import { Component,OnInit, inject} from '@angular/core';
 import {KeyValuePipe} from '@angular/common';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {confirmPasswordValidator} from '../validators/confirmPassword';
 import {InputComponent} from '../input-component/input-component';
 import {AuthServices} from '../../services/authService/authService';
+
 
 @Component({
   selector: 'app-signup',
@@ -15,6 +17,11 @@ import {AuthServices} from '../../services/authService/authService';
 export class Signup implements OnInit {
   private router=inject(Router);
   private authService=inject(AuthServices)
+
+  public errorSnackBar!:MatSnackBar;
+  openErrorSnackBar(errorMessage:any){
+    this.errorSnackBar.open(errorMessage)
+  }
 
   signupForm!:FormGroup<{username:FormControl<string|null>,email:FormControl<string|null>,password:FormControl<string|null>,confirmPassword:FormControl<string|null>,role:FormControl<string|null>}>;
 
@@ -45,11 +52,17 @@ export class Signup implements OnInit {
           this.router.navigate(['/auth/signup'])
           console.log('User logged in successfully')
         },
-        error:(err)=>console.log('We received this login error: ',err),
-        complete:()=>console.log('no errors, we are done logging in the user')
-      })
+        error:(err)=>{
+          alert(err.error.error);
+          // this.openErrorSnackBar(err)
+          console.log('We received this login error: ',err.error.error)
+        },
+        complete:()=>{
+          this.afterSubmit();
+          console.log('no errors, we are done logging in the user')
+    }})
       
-      this.afterSubmit();
+      
   }else{
       this.signupForm.markAllAsTouched();
   }
