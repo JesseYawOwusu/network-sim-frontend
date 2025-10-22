@@ -56,7 +56,7 @@ export class Signup implements OnInit,OnDestroy {
           takeUntil(this._destroy$)
         },
         error:(err)=>{
-          this.errorMessage=err.error.error
+          this.errorMessage=err?.error?.error||err?.message||'Unknown error'
           this.errorSwal.fire()
         },
 })

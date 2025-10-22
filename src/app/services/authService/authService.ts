@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 
 import moment from "moment";
-import {HttpClient,HttpErrorResponse} from '@angular/common/http';
-import {Subject,tap } from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {User} from '../../models/user.model';
+import {HttpClient} from '@angular/common/http';
+import {Observable,tap } from 'rxjs';
+import {User,LoggedInUser} from '../../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthServices {
-  private API_URL='https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/';
+  private API_URL='';
   
  
 
@@ -19,8 +18,8 @@ export class AuthServices {
   
   
 
-  public login(email:string,password:string){
-    return this.http.post(`${this.API_URL}signin`,{email,password})
+  public login(email:string,password:string):Observable<User>{
+    return this.http.post<User>(`${this.API_URL}signin`,{email,password})
     .pipe(
       tap((response)=>this.setLoggedInUser(response), 
 
@@ -31,8 +30,8 @@ export class AuthServices {
   }
 
 
-  public signup(newUser:User){
-    return this.http.post(`${this.API_URL}signup`,newUser)
+  public signup(newUser:User):Observable<LoggedInUser>{
+    return this.http.post<LoggedInUser>(`${this.API_URL}signup`,newUser)
     .pipe(
       tap((response)=>this.setLoggedInUser(response)),
     )
@@ -43,12 +42,12 @@ export class AuthServices {
     const expiresAt=moment().add(authResponse.expiresIn,'second')
 
     localStorage.setItem('user_token',authResponse.token)
-    localStorage.setItem('expiry_time',JSON.stringify(expiresAt.valueOf()))
+    localStorage.setItem('token_expiration',JSON.stringify(expiresAt.valueOf()))
   }
 
   public logout(){
     localStorage.removeItem('user_token')
-    localStorage.removeItem('expiry_time')
+    localStorage.removeItem('token_expiration')
   }
 
   public isLoggedIn(){
@@ -56,7 +55,7 @@ export class AuthServices {
   }
 
   public getExpiration(){
-    const expiration=localStorage.getItem('expirary_time') || '0'
+    const expiration=localStorage.getItem('token_expiration') || '0'
     const expiresAt=JSON.parse(expiration);
     return moment(expiresAt)
   }

@@ -48,7 +48,7 @@ export class Login implements OnInit,OnDestroy {
           },
         error:(err)=>
           {
-            this.errorMessage=err.error.error
+            this.errorMessage=err?.error?.error||err?.message||'Unknown error'
             this.errorSwal.fire()
           },
         
