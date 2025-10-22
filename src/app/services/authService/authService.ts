@@ -4,12 +4,13 @@ import moment from "moment";
 import {HttpClient} from '@angular/common/http';
 import {Observable,tap } from 'rxjs';
 import {User,LoggedInUser} from '../../models/user.model';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthServices {
-  private API_URL='';
+  private baseUrl=environment.baseUrl;
   
  
 
@@ -19,7 +20,7 @@ export class AuthServices {
   
 
   public login(email:string,password:string):Observable<User>{
-    return this.http.post<User>(`${this.API_URL}signin`,{email,password})
+    return this.http.post<User>(`${this.baseUrl}signin`,{email,password})
     .pipe(
       tap((response)=>this.setLoggedInUser(response), 
 
@@ -31,7 +32,7 @@ export class AuthServices {
 
 
   public signup(newUser:User):Observable<LoggedInUser>{
-    return this.http.post<LoggedInUser>(`${this.API_URL}signup`,newUser)
+    return this.http.post<LoggedInUser>(`${this.baseUrl}signup`,newUser)
     .pipe(
       tap((response)=>this.setLoggedInUser(response)),
     )
