@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {OnDestroy} from '@angular/core';
+
 import moment from "moment";
 import {HttpClient,HttpErrorResponse} from '@angular/common/http';
 import {Subject,tap } from 'rxjs';
@@ -9,24 +9,23 @@ import {User} from '../../models/user.model';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthServices implements OnDestroy{
+export class AuthServices {
   private API_URL='https://genethliacally-ling-epeirogenic.ngrok-free.dev/api/authentication/';
-  private _destroy$=new Subject<void>();
+  
  
 
   constructor(private http:HttpClient){}
 
-  ngOnDestroy(){
-    this._destroy$.next();
-  }
-
+  
   
 
   public login(email:string,password:string){
     return this.http.post(`${this.API_URL}signin`,{email,password})
     .pipe(
-      tap(()=>this.setLoggedInUser), 
-      takeUntil(this._destroy$)
+      tap((response)=>this.setLoggedInUser(response), 
+
+      )
+      
     )
       
   }
@@ -35,8 +34,7 @@ export class AuthServices implements OnDestroy{
   public signup(newUser:User){
     return this.http.post(`${this.API_URL}signup`,newUser)
     .pipe(
-      tap(()=>this.setLoggedInUser),
-      takeUntil(this._destroy$)
+      tap((response)=>this.setLoggedInUser(response)),
     )
 
   }
@@ -45,12 +43,12 @@ export class AuthServices implements OnDestroy{
     const expiresAt=moment().add(authResponse.expiresIn,'second')
 
     localStorage.setItem('user_token',authResponse.token)
-    localStorage.setItem('expirary_time',JSON.stringify(expiresAt.valueOf()))
+    localStorage.setItem('expiry_time',JSON.stringify(expiresAt.valueOf()))
   }
 
   public logout(){
     localStorage.removeItem('user_token')
-    localStorage.removeItem('expirary_time')
+    localStorage.removeItem('expiry_time')
   }
 
   public isLoggedIn(){

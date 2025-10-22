@@ -1,10 +1,11 @@
-import { Component,OnInit, inject,ViewChild, viewChild} from '@angular/core';
+import { Component,OnInit, inject,ViewChild,OnDestroy} from '@angular/core';
 import {RouterLink,Router} from "@angular/router";
 import {ReactiveFormsModule,FormControl,FormGroup,Validators} from "@angular/forms";
 import {confirmPasswordValidator} from '../validators/confirmPassword';
 import {InputComponent} from '../input-component/input-component';
 import {AuthServices} from '../../services/authService/authService';
 import { SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert2/ngx-sweetalert2';
+import {Subject, takeUntil} from 'rxjs'
 
 
 @Component({
@@ -13,9 +14,10 @@ import { SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert
   templateUrl: './signup.html',
   styleUrl: './signup.css'
 })
-export class Signup implements OnInit {
+export class Signup implements OnInit,OnDestroy {
   private router=inject(Router);
   private authService=inject(AuthServices)
+  private _destroy$=new Subject<void>();
 
   public errorMessage='';
   @ViewChild('errorSwal')
@@ -37,6 +39,8 @@ export class Signup implements OnInit {
     },{validators:confirmPasswordValidator});
   }
 
+  
+
   public submitSignup(){
     
     if(this.signupForm.valid){
@@ -49,20 +53,25 @@ export class Signup implements OnInit {
       .subscribe({
         next:()=> {
           this.router.navigate(['/auth/signup'])
+          takeUntil(this._destroy$)
         },
         error:(err)=>{
           this.errorMessage=err.error.error
           this.errorSwal.fire()
         },
-        complete:()=>{
-          this.router.navigate(['/auth/login'])
-    }})
+})
       
       
   }else{
       this.signupForm.markAllAsTouched();
   }
 }
+
+
+ngOnDestroy(){
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
 
   
    
