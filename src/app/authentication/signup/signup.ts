@@ -23,7 +23,7 @@ export class Signup implements OnInit {
 
   
 
-  signupForm!:FormGroup<{username:FormControl<string|null>,email:FormControl<string|null>,password:FormControl<string|null>,confirmPassword:FormControl<string|null>,role:FormControl<string|null>}>;
+  signupForm!:FormGroup<{username:FormControl<string|null>,email:FormControl<string|null>,password:FormControl<string|null>,confirmPassword:FormControl<string|null>}>;
 
   constructor(public readonly swalTargets:SwalPortalTargets){}
 
@@ -33,7 +33,7 @@ export class Signup implements OnInit {
       email:new FormControl('',[Validators.required,Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")]),
       password:new FormControl('',[Validators.required]),
       confirmPassword:new FormControl('',[Validators.required]),
-      role:new FormControl('',[Validators.required])
+
     },{validators:confirmPasswordValidator});
   }
 
@@ -44,7 +44,6 @@ export class Signup implements OnInit {
         username:this.signupForm.controls.username.value || '',
         password:this.signupForm.controls.password.value || '',
         email:this.signupForm.controls.email.value||'',
-        role:this.signupForm.controls.role.value||''
       }
       this.authService.signup(newUser)
       .subscribe({
