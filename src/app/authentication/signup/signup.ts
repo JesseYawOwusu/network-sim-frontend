@@ -8,6 +8,7 @@ import { SwalComponent, SwalPortalDirective,SwalPortalTargets} from '@sweetalert
 import {Subject, takeUntil} from 'rxjs'
 
 
+
 @Component({
   selector: 'app-signup',
   imports: [RouterLink, ReactiveFormsModule, InputComponent,SwalComponent, SwalPortalDirective],
@@ -52,7 +53,7 @@ export class Signup implements OnInit,OnDestroy {
       this.authService.signup(newUser)
       .subscribe({
         next:()=> {
-          this.router.navigate(['/auth/signup'])
+          this.router.navigate(['/auth/login'])
           takeUntil(this._destroy$)
         },
         error:(err)=>{

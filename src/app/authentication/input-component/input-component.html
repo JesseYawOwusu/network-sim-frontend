@@ -1,8 +1,7 @@
-<div class="active:cursor-teal-600">
-    <input [formControl]="controlName" required type="text" [placeholder]="label" class="text-sm placeholder:text-gray-400 w-full outline-none  focus:text-black "/>
-    <div class="w-full bg-gray-400 rounded-sm border-1 border-gray-400"></div>
-    @if(controlName.invalid && (controlName.touched || controlName.dirty
-    )
+<div class="focus: text-black active:cursor-teal-600 focus:outline-black">
+    <input [formControl]="controlName" required type="text" [placeholder]="label" class="text-sm placeholder:text-gray-400 w-full outline-none"/>
+    <div class="w-full rounded-sm border-1 border-gray-400 focus:outline"></div>
+    @if(controlName.invalid && (controlName.touched || controlName.dirty)
     ){
         @for(err of controlName.errors|keyvalue; track err.key){
             <p class=" text-red-700 text-sm italic">{{errorMessages[err.key]}}</p>
