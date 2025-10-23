@@ -1,5 +1,19 @@
 <div class="h-screen flex items-center justify-center overflow-hidden scrollbar-hide ">
 <div class="flex gap-10 justify-evenly items-center overflow-hidden w-[90%]  rounded-2xl">
+    <swal
+        #errorSwal
+        title="An Error occured in Signup"
+        icon="error"
+        position="top"
+        [showConfirmButton]="false"
+        [timer]="1000"
+        width="600"
+        
+        >
+        <div *swalPortal="swalTargets.title">
+            <p>{{errorMessage}}</p>
+        </div>
+    </swal>
     
     
   
@@ -22,7 +36,7 @@
         
         <div class="grid gap-10 p-5 pb-0 ">
             <div class="active:cursor-teal-600">
-                <app-input-component [controlName]="loginForm.controls.username" label="username"></app-input-component>  
+                <app-input-component [controlName]="loginForm.controls.email" label="email"></app-input-component>  
             </div>
             <div>
                 <app-input-component [controlName]="loginForm.controls.password" label="password"></app-input-component> 
