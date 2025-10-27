@@ -1,17 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { Scenario, ScenarioDifficulty } from '../../models/scenario.model';
+import { RouterModule } from '@angular/router';
 import { Device, DeviceType, DeviceStatus } from '../../models/device.model';
-import { Connection, ConnectionStatus } from '../../models/connection.model';
-import { DeviceListComponent } from '../device-list/device-list.component';
+import { Scenario, ScenarioDifficulty } from '../../models/scenario.model';
 import { ScenarioService } from '../../services/scenario.service';
 
 @Component({
   selector: 'app-scenario-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, DeviceListComponent, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './scenario-editor.component.html',
   styleUrl: './scenario-editor.component.css'
 })
@@ -20,45 +18,31 @@ export class ScenarioEditorComponent implements OnInit {
     id: '',
     name: '',
     difficulty: 'Beginner',
-    timeLimit: 15,
+    timeLimit: 30,
+    passingScore: 70,
+    description: '',
     devices: [],
     connections: []
   };
 
   difficultyOptions: ScenarioDifficulty[] = ['Beginner', 'Intermediate', 'Advanced'];
   
-  // Device positioning properties
-  selectedDevice: Device | null = null;
-  isDragging = false;
-  dragOffset = { x: 0, y: 0 };
+  // Device drag and drop properties
+  deviceTypes: DeviceType[] = ['router', 'switch', 'server', 'firewall', 'load balancer'];
   
-  // Connection drawing properties
-  isDrawingConnection = false;
-  connectionStartDevice: Device | null = null;
-  connectionPreview = { x: 0, y: 0 };
-  
-  // Backend integration properties
-  isBackendAvailable = false;
+  // Save properties
   isSaving = false;
   saveError: string | null = null;
+  saveStep: string = ''; // Track current save step
+  
+  // Device configuration modal properties
+  showDeviceConfigModal = false;
+  selectedDevice: Device | null = null;
 
   constructor(private scenarioService: ScenarioService) {}
 
   ngOnInit(): void {
-    this.checkBackendHealth();
-  }
-
-  private checkBackendHealth(): void {
-    this.scenarioService.checkBackendHealth().subscribe({
-      next: () => {
-        this.isBackendAvailable = true;
-        this.scenarioService.loadScenarios();
-      },
-      error: () => {
-        this.isBackendAvailable = false;
-        console.warn('Backend not available, using local storage only');
-      }
-    });
+    this.loadScenarioFromUrl();
   }
 
   saveScenario(): void {
@@ -69,70 +53,118 @@ export class ScenarioEditorComponent implements OnInit {
 
     this.isSaving = true;
     this.saveError = null;
+    this.saveStep = 'Saving scenario...';
 
     // Generate unique ID if not set
     if (!this.scenario.id) {
-      this.scenario.id = this.generateId();
+      this.scenario.id = this.generateScenarioId();
     }
 
-    if (this.isBackendAvailable) {
-      // Save to backend
-      this.scenarioService.saveScenario(this.scenario).subscribe({
-        next: (savedScenario) => {
-          this.scenario = savedScenario;
-          this.isSaving = false;
-          alert(`Scenario "${this.scenario.name}" saved to backend successfully!`);
-        },
-        error: (error) => {
-          this.isSaving = false;
-          this.saveError = error.message;
-          console.error('Error saving to backend:', error);
-          // Fallback to local download
-          this.saveScenarioLocally();
-        }
-      });
-    } else {
-      // Fallback to local download
-      this.saveScenarioLocally();
+    // Check if backend is available
+    if (!this.scenarioService.isBackendConnected()) {
+      console.warn('Backend not available, saving to local storage');
+      this.saveStep = 'Saving to local storage...';
+      this.saveToLocalStorage();
+      return;
+    }
+
+    // Use the new method that saves scenario and devices separately
+    this.saveScenarioWithDevices();
+  }
+
+  private saveToLocalStorage(): void {
+    try {
+      const savedScenarios = JSON.parse(localStorage.getItem('savedScenarios') || '[]');
+      const existingIndex = savedScenarios.findIndex((s: any) => s.id === this.scenario.id);
+      
+      if (existingIndex >= 0) {
+        savedScenarios[existingIndex] = this.scenario;
+      } else {
+        savedScenarios.push(this.scenario);
+      }
+      
+      localStorage.setItem('savedScenarios', JSON.stringify(savedScenarios));
+      this.isSaving = false;
+      this.saveStep = '';
+      this.saveError = null;
+      alert(`Scenario "${this.scenario.name}" saved to local storage!`);
+    } catch (error) {
+      console.error('Error saving to local storage:', error);
+      this.isSaving = false;
+      this.saveStep = '';
+      this.saveError = 'Failed to save to local storage';
+      alert('Error saving scenario to local storage');
     }
   }
 
-  private saveScenarioLocally(): void {
-    const jsonData = JSON.stringify(this.scenario, null, 2);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${this.scenario.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  private saveScenarioWithDevices(): void {
+    console.log('Starting save process for scenario:', this.scenario);
+    console.log('Backend available:', this.scenarioService.isBackendConnected());
     
-    this.isSaving = false;
-    alert(`Scenario "${this.scenario.name}" saved locally (backend unavailable)!`);
+    this.scenarioService.saveScenarioWithDevices(this.scenario).subscribe({
+      next: (savedScenario) => {
+        console.log('Save successful:', savedScenario);
+        this.scenario = savedScenario;
+        this.isSaving = false;
+        this.saveStep = '';
+        this.saveError = null;
+        alert(`Scenario "${this.scenario.name}" saved successfully with all devices and layout!`);
+      },
+      error: (error) => {
+        console.error('Save failed with error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url,
+          body: error.error
+        });
+        
+        this.isSaving = false;
+        this.saveStep = '';
+        
+        // Check if it's actually an error or if the save succeeded
+        let errorMessage = 'Failed to save scenario';
+        
+        if (error.status === 0) {
+          errorMessage = 'Cannot connect to backend server. Please check if the server is running.';
+        } else if (error.status === 400) {
+          errorMessage = error.error?.message || 'Invalid scenario data.';
+        } else if (error.status === 404) {
+          errorMessage = 'Scenario not found.';
+        } else if (error.status === 500) {
+          errorMessage = error.error?.message || 'Backend server error occurred.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        this.saveError = errorMessage;
+        alert(`Error saving scenario: ${errorMessage}`);
+      }
+    });
   }
 
-  loadScenario(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+
+  private loadScenarioFromUrl(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const scenarioData = urlParams.get('scenario');
     
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const scenarioData = JSON.parse(e.target?.result as string);
-          this.scenario = {
-            ...scenarioData,
-            devices: scenarioData.devices || [],
-            connections: scenarioData.connections || []
-          };
-          alert(`Scenario "${this.scenario.name}" loaded successfully!`);
-        } catch (error) {
-          alert('Error loading scenario file. Please check the file format.');
-        }
-      };
-      reader.readAsText(file);
+    if (scenarioData) {
+      try {
+        const scenario = JSON.parse(decodeURIComponent(scenarioData));
+        this.scenario = {
+          ...scenario,
+          devices: scenario.devices || [],
+          connections: scenario.connections || []
+        };
+      } catch (error) {
+        console.error('Error loading scenario from URL:', error);
+      }
     }
   }
+
 
   clearScenario(): void {
     if (confirm('Are you sure you want to clear the current scenario? This action cannot be undone.')) {
@@ -140,83 +172,32 @@ export class ScenarioEditorComponent implements OnInit {
         id: '',
         name: '',
         difficulty: 'Beginner',
-        timeLimit: 15,
+        timeLimit: 30,
+        passingScore: 70,
+        description: '',
         devices: [],
         connections: []
       };
     }
   }
 
-  exportScenario(): void {
-    const exportData = {
-      ...this.scenario,
-      exportedAt: new Date().toISOString(),
-      version: '1.0'
-    };
-    
-    const jsonData = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${this.scenario.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  // Drag and drop methods for adding devices to scenario
+  onDeviceClick(deviceType: DeviceType): void {
+    this.addDeviceToScenario(deviceType);
   }
 
-  // Backend integration methods
-  loadScenariosFromBackend(): void {
-    if (this.isBackendAvailable) {
-      this.scenarioService.getAllScenarios().subscribe({
-        next: (scenarios) => {
-          if (scenarios.length > 0) {
-            const scenarioNames = scenarios.map(s => s.name).join(', ');
-            const selectedName = prompt(`Available scenarios: ${scenarioNames}\nEnter scenario name to load:`);
-            if (selectedName) {
-              const selectedScenario = scenarios.find(s => s.name === selectedName);
-              if (selectedScenario) {
-                this.scenario = selectedScenario;
-                alert(`Scenario "${selectedScenario.name}" loaded from backend!`);
-              } else {
-                alert('Scenario not found!');
-              }
-            }
-          } else {
-            alert('No scenarios found in backend.');
-          }
-        },
-        error: (error) => {
-          console.error('Error loading scenarios from backend:', error);
-          alert('Error loading scenarios from backend.');
-        }
-      });
-    } else {
-      alert('Backend not available. Please check your connection.');
-    }
-  }
-
-  deleteScenarioFromBackend(): void {
-    if (this.isBackendAvailable && this.scenario.id) {
-      if (confirm(`Are you sure you want to delete scenario "${this.scenario.name}" from the backend?`)) {
-        this.scenarioService.deleteScenario(this.scenario.id).subscribe({
-          next: () => {
-            alert(`Scenario "${this.scenario.name}" deleted from backend!`);
-            this.clearScenario();
-          },
-          error: (error) => {
-            console.error('Error deleting scenario from backend:', error);
-            alert('Error deleting scenario from backend.');
-          }
-        });
-      }
-    } else {
-      alert('Backend not available or no scenario ID.');
+  onDragStart(event: DragEvent, deviceType: DeviceType): void {
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', deviceType);
+      event.dataTransfer.effectAllowed = 'copy';
     }
   }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    event.dataTransfer!.dropEffect = 'copy';
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
   }
 
   onDrop(event: DragEvent): void {
@@ -224,160 +205,212 @@ export class ScenarioEditorComponent implements OnInit {
     const deviceType = event.dataTransfer?.getData('text/plain') as DeviceType;
     
     if (deviceType && this.deviceTypes.includes(deviceType)) {
-      const rect = (event.target as HTMLElement).getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      
-      const newDevice: Device = {
-        id: this.generateId(),
-        name: `${deviceType} ${this.scenario.devices.length + 1}`,
-        type: deviceType,
-        ip: this.generateIP(),
-        status: 'active' as DeviceStatus,
-        position: { x, y }
-      };
-      
-      this.scenario.devices.push(newDevice);
+      this.addDeviceToScenario(deviceType);
     }
   }
 
-  private generateId(): string {
-    return Math.random().toString(36).substr(2, 9);
+  private addDeviceToScenario(deviceType: DeviceType): void {
+    // Assign random status with weighted distribution
+    const randomStatus = this.getRandomDeviceStatus();
+    
+    const newDevice: Device = {
+      id: this.generateId(),
+      name: `${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)} ${this.scenario.devices.length + 1}`,
+      type: deviceType,
+      ipAddress: this.generateIP(),
+      status: randomStatus,
+      position: { x: 0, y: 0 },
+      parameters: randomStatus === 'online' ? {
+        pingRate: Math.floor(Math.random() * 50) + 5,
+        latency: Math.floor(Math.random() * 20) + 1,
+        trafficLoad: Math.floor(Math.random() * 80) + 10
+      } : {
+        pingRate: 1,
+        latency: 1,
+        trafficLoad: 0
+      },
+      connections: [],
+      lastUpdated: new Date().toISOString(),
+      scenarioId: this.scenario.id ? parseInt(this.scenario.id) : 1
+    };
+    
+    this.scenario.devices.push(newDevice);
+  }
+
+  removeDeviceFromScenario(device: Device): void {
+    const index = this.scenario.devices.indexOf(device);
+    if (index > -1) {
+      this.scenario.devices.splice(index, 1);
+    }
+  }
+
+  // Device configuration methods
+  onDeviceItemClick(device: Device): void {
+    this.selectedDevice = { ...device }; // Create a copy to avoid direct modification
+    this.showDeviceConfigModal = true;
+  }
+
+  onCloseDeviceConfigModal(): void {
+    this.showDeviceConfigModal = false;
+    this.selectedDevice = null;
+  }
+
+  onSaveDeviceConfig(): void {
+    if (!this.selectedDevice) return;
+
+    // Validate and fix parameter values to meet backend requirements
+    this.selectedDevice.parameters = {
+      pingRate: Math.max(1, this.selectedDevice.parameters.pingRate),
+      latency: Math.max(1, this.selectedDevice.parameters.latency),
+      trafficLoad: Math.max(0, this.selectedDevice.parameters.trafficLoad)
+    };
+
+    // Find the device in the scenario and update it
+    const deviceIndex = this.scenario.devices.findIndex(d => d.id === this.selectedDevice!.id);
+    if (deviceIndex !== -1) {
+      // Update the device with the modified values, preserving position
+      this.scenario.devices[deviceIndex] = { 
+        ...this.selectedDevice,
+        position: this.scenario.devices[deviceIndex].position || { x: 0, y: 0 }
+      };
+    }
+
+    this.onCloseDeviceConfigModal();
+  }
+
+  /**
+   * Update device position in scenario
+   */
+  updateDevicePosition(deviceId: number, position: { x: number, y: number }): void {
+    const deviceIndex = this.scenario.devices.findIndex(d => d.id === deviceId);
+    if (deviceIndex !== -1) {
+      this.scenario.devices[deviceIndex] = {
+        ...this.scenario.devices[deviceIndex],
+        position: position
+      };
+      
+    }
+  }
+
+  /**
+   * Update device connections in scenario
+   */
+  updateDeviceConnections(deviceId: number, connections: number[]): void {
+    const deviceIndex = this.scenario.devices.findIndex(d => d.id === deviceId);
+    if (deviceIndex !== -1) {
+      this.scenario.devices[deviceIndex] = {
+        ...this.scenario.devices[deviceIndex],
+        connections: connections.map((id: number) => id.toString())
+      };
+      
+    }
+  }
+
+
+  /**
+   * Save layout changes to backend (for real-time updates)
+   */
+  saveLayoutChanges(): void {
+    if (!this.scenario.id || this.scenario.devices.length === 0) {
+      console.log('No scenario ID or devices to save layout for');
+      return;
+    }
+
+    // Create layout data in the format expected by backend
+    const layoutData = {
+      devices: this.scenario.devices.map(device => ({
+        id: device.id,
+        name: device.name,
+        type: device.type,
+        position: device.position || { x: 0, y: 0 },
+        pingRate: Math.max(1, device.parameters.pingRate),
+        latency: Math.max(1, device.parameters.latency),
+        trafficLoad: Math.max(0, device.parameters.trafficLoad),
+        connections: (device.connections || []).map((id: string) => parseInt(id.toString()))
+      }))
+    };
+
+    console.log('Saving layout changes:', JSON.stringify(layoutData, null, 2));
+
+    this.scenarioService.saveNetworkLayout(this.scenario.id, layoutData).subscribe({
+      next: (response) => {
+        console.log('Layout changes saved successfully:', response);
+      },
+      error: (error) => {
+        console.error('Error saving layout changes:', error);
+      }
+    });
+  }
+
+  exportScenario(): void {
+    const exportData = {
+      ...this.scenario,
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+      exportedBy: 'Network Simulator'
+    };
+    
+    const jsonData = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${this.scenario.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_backup.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    alert(`Scenario "${this.scenario.name}" exported as backup file!`);
+  }
+
+  private generateId(): number {
+    return Math.floor(Math.random() * 10000) + 1;
+  }
+
+  private generateScenarioId(): string {
+    return Math.random().toString(36).substring(2, 11);
   }
 
   private generateIP(): string {
     return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
   }
 
-  private deviceTypes: DeviceType[] = ['Router', 'Switch', 'Server', 'Firewall', 'Load balancer'];
+  private getRandomDeviceStatus(): DeviceStatus {
+    // Favor online devices: 70% online, 20% offline, 10% failed
+    const random = Math.random();
+    if (random < 0.7) {
+      return 'online';
+    } else if (random < 0.9) {
+      return 'offline';
+    } else {
+      return 'failed';
+    }
+  }
 
   getDeviceIcon(deviceType: DeviceType): string {
     switch (deviceType) {
-      case 'Router':
+      case 'router':
         return '🌐';
-      case 'Switch':
+      case 'switch':
         return '🔀';
-      case 'Server':
+      case 'server':
         return '🖥️';
-      case 'Firewall':
+      case 'firewall':
         return '🛡️';
-      case 'Load balancer':
+      case 'load balancer':
         return '⚖️';
       default:
         return '📱';
     }
   }
 
-  // Device positioning methods
-  onDeviceMouseDown(event: MouseEvent, device: Device): void {
-    event.preventDefault();
-    this.selectedDevice = device;
-    this.isDragging = true;
-    
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    this.dragOffset = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
+
+
+
+
+
+
+  trackByDeviceId(index: number, device: Device): number {
+    return device.id;
   }
 
-  onCanvasMouseMove(event: MouseEvent): void {
-    if (this.isDragging && this.selectedDevice) {
-      const canvas = event.currentTarget as HTMLElement;
-      const rect = canvas.getBoundingClientRect();
-      
-      const newX = event.clientX - rect.left - this.dragOffset.x;
-      const newY = event.clientY - rect.top - this.dragOffset.y;
-      
-      // Constrain to canvas bounds
-      const constrainedX = Math.max(0, Math.min(newX, rect.width - 80));
-      const constrainedY = Math.max(0, Math.min(newY, rect.height - 60));
-      
-      this.selectedDevice.position = { x: constrainedX, y: constrainedY };
-    }
-  }
-
-  onCanvasMouseUp(): void {
-    this.isDragging = false;
-    this.selectedDevice = null;
-  }
-
-  onDeviceDoubleClick(device: Device): void {
-    // Allow renaming device
-    const newName = prompt('Enter new device name:', device.name);
-    if (newName && newName.trim()) {
-      device.name = newName.trim();
-    }
-  }
-
-  // Connection drawing methods
-  startConnectionDrawing(device: Device, event: MouseEvent): void {
-    event.stopPropagation();
-    this.isDrawingConnection = true;
-    this.connectionStartDevice = device;
-  }
-
-  onCanvasMouseMoveForConnection(event: MouseEvent): void {
-    if (this.isDrawingConnection) {
-      const canvas = event.currentTarget as HTMLElement;
-      const rect = canvas.getBoundingClientRect();
-      this.connectionPreview = {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top
-      };
-    }
-  }
-
-  endConnectionDrawing(targetDevice: Device, event: MouseEvent): void {
-    event.stopPropagation();
-    
-    if (this.isDrawingConnection && this.connectionStartDevice && 
-        this.connectionStartDevice.id !== targetDevice.id) {
-      
-      // Check if connection already exists
-      const existingConnection = this.scenario.connections.find(conn => 
-        (conn.fromDeviceId === this.connectionStartDevice!.id && conn.toDeviceId === targetDevice.id) ||
-        (conn.fromDeviceId === targetDevice.id && conn.toDeviceId === this.connectionStartDevice!.id)
-      );
-
-      if (!existingConnection) {
-        const newConnection: Connection = {
-          id: this.generateId(),
-          fromDeviceId: this.connectionStartDevice.id,
-          toDeviceId: targetDevice.id,
-          status: 'active' as ConnectionStatus
-        };
-        
-        this.scenario.connections.push(newConnection);
-      }
-    }
-    
-    this.cancelConnectionDrawing();
-  }
-
-  cancelConnectionDrawing(): void {
-    this.isDrawingConnection = false;
-    this.connectionStartDevice = null;
-  }
-
-  deleteConnection(connection: Connection): void {
-    const index = this.scenario.connections.indexOf(connection);
-    if (index > -1) {
-      this.scenario.connections.splice(index, 1);
-    }
-  }
-
-  getConnectionPath(connection: Connection): string {
-    const fromDevice = this.scenario.devices.find(d => d.id === connection.fromDeviceId);
-    const toDevice = this.scenario.devices.find(d => d.id === connection.toDeviceId);
-    
-    if (!fromDevice || !toDevice) return '';
-    
-    const startX = fromDevice.position.x + 40; // Center of device
-    const startY = fromDevice.position.y + 30;
-    const endX = toDevice.position.x + 40;
-    const endY = toDevice.position.y + 30;
-    
-    return `M ${startX} ${startY} L ${endX} ${endY}`;
-  }
 }

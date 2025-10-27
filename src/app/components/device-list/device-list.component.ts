@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceType } from '../../models/device.model';
 
@@ -10,19 +10,21 @@ import { DeviceType } from '../../models/device.model';
   styleUrl: './device-list.component.css'
 })
 export class DeviceListComponent {
-  deviceTypes: DeviceType[] = ['Router', 'Switch', 'Server', 'Firewall', 'Load balancer'];
+  @Output() deviceSelected = new EventEmitter<DeviceType>();
+  
+  deviceTypes: DeviceType[] = ['router', 'switch', 'server', 'firewall', 'load balancer'];
 
   getDeviceIcon(deviceType: DeviceType): string {
     switch (deviceType) {
-      case 'Router':
+      case 'router':
         return '🌐';
-      case 'Switch':
+      case 'switch':
         return '🔀';
-      case 'Server':
+      case 'server':
         return '🖥️';
-      case 'Firewall':
+      case 'firewall':
         return '🛡️';
-      case 'Load balancer':
+      case 'load balancer':
         return '⚖️';
       default:
         return '📱';
@@ -31,19 +33,27 @@ export class DeviceListComponent {
 
   getDeviceDescription(deviceType: DeviceType): string {
     switch (deviceType) {
-      case 'Router':
+      case 'router':
         return 'Routes traffic between networks';
-      case 'Switch':
+      case 'switch':
         return 'Connects devices within a network';
-      case 'Server':
+      case 'server':
         return 'Provides services and applications';
-      case 'Firewall':
+      case 'firewall':
         return 'Protects network from threats';
-      case 'Load balancer':
+      case 'load balancer':
         return 'Distributes traffic across servers';
       default:
         return 'Network device';
     }
+  }
+
+  onDeviceClick(deviceType: DeviceType): void {
+    console.log('Device clicked:', deviceType);
+    // Emit event or handle device addition
+    // This component is used in different contexts, so we'll emit an event
+    // that parent components can listen to
+    this.deviceSelected.emit(deviceType);
   }
 
   onDragStart(event: DragEvent, deviceType: DeviceType): void {

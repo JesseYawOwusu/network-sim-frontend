@@ -1,0 +1,250 @@
+<div class="device-display-container">
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <!-- Device Library -->
+    <section class="device-library">
+      <h3>Device Library</h3>
+      <div class="device-types">
+        <div 
+          *ngFor="let deviceType of deviceTypes; let i = index" 
+          class="device-type-card"
+          (click)="onAddDevice(deviceType.type)"
+          title="Click to add {{ deviceType.type }} to canvas"
+          draggable="false"
+          [attr.data-index]="i"
+          [attr.data-type]="deviceType.type">
+          <div class="device-icon">{{ deviceType.icon }}</div>
+          <div class="device-info">
+            <span class="device-name">{{ deviceType.type }}</span>
+            <span class="device-description">{{ deviceType.description }}</span>
+          </div>
+          <div class="device-actions">
+            <span class="more-options">⋮</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Simulation Controls -->
+    <section class="simulation-controls">
+      <h3>Simulation Controls</h3>
+      
+      <!-- Scenario Selection -->
+      <div class="scenario-selection">
+        <label>Scenario ID:</label>
+        <input 
+          type="text" 
+          [(ngModel)]="currentScenarioId" 
+          placeholder="Enter scenario ID"
+          class="scenario-input">
+      </div>
+
+      <!-- Simulation Parameters -->
+      <div class="simulation-params">
+        <h4>Simulation Parameters</h4>
+        <div class="param-group">
+          <label>Max Latency:</label>
+          <input 
+            type="number" 
+            [(ngModel)]="simulationParams.Max_latency" 
+            min="0" 
+            max="1000"
+            class="param-input">
+        </div>
+        <div class="param-group">
+          <label>Min Latency:</label>
+          <input 
+            type="number" 
+            [(ngModel)]="simulationParams.Min_latency" 
+            min="0" 
+            max="1000"
+            class="param-input">
+        </div>
+        <div class="param-group">
+          <label>Error Probability:</label>
+          <input 
+            type="number" 
+            [(ngModel)]="simulationParams.error_probability" 
+            min="0" 
+            max="100"
+            class="param-input">
+        </div>
+      </div>
+
+      <!-- Simulation Button -->
+      <button 
+        class="simulation-btn"
+        [class.running]="simulationRunning"
+        (click)="simulationRunning ? onStopSimulation() : onStartSimulation()">
+        {{ simulationRunning ? '⏹️ Stop Simulation' : '► Start Simulation' }}
+      </button>
+      
+      <div class="auto-refresh">
+        <span class="refresh-indicator">REAL-TIME UPDATES via Socket.IO</span>
+      </div>
+    </section>
+
+    <!-- Save Controls -->
+    <section class="save-controls">
+      <h3>Save Changes</h3>
+      <div class="save-buttons">
+        <button 
+          class="save-btn"
+          (click)="saveAllChanges()"
+          [disabled]="!localStateService.hasUnsavedChanges()">
+          💾 Save All Changes
+        </button>
+        <button 
+          class="discard-btn"
+          (click)="discardChanges()"
+          [disabled]="!localStateService.hasUnsavedChanges()">
+          🗑️ Discard Changes
+        </button>
+      </div>
+      <div class="change-indicator" *ngIf="localStateService.hasUnsavedChanges()">
+        ⚠️ You have unsaved changes
+      </div>
+    </section>
+  </aside>
+
+  <!-- Main Canvas Area -->
+  <main class="canvas-container">
+    <div class="canvas-header">
+      <div class="canvas-title">Device Simulation Canvas</div>
+      <div class="canvas-controls">
+        <button class="control-btn" (click)="onClearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <div class="canvas" #canvas 
+         (mousemove)="onCanvasMouseMove($event)"
+         (mouseup)="onCanvasMouseUp()"
+         (mouseleave)="onCanvasMouseUp()">
+      <!-- Device Connections (dashed lines) -->
+      <svg class="connections-layer" width="100%" height="100%">
+        <defs>
+          <pattern id="dashed" patternUnits="userSpaceOnUse" width="10" height="10">
+            <path d="M 0,10 l 10,-10 M -2.5,2.5 l 5,-5 M 7.5,12.5 l 5,-5" stroke="#ccc" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <g class="connections">
+          <!-- Connections will be drawn here -->
+        </g>
+      </svg>
+
+      <!-- Devices -->
+      <div class="devices-layer">
+        <div 
+          *ngFor="let device of devices" 
+          class="device-card"
+          [class.offline]="device.status === 'offline'"
+          [class.failed]="device.status === 'failed'"
+          [class.dragging]="draggedDevice?.id === device.id"
+          [style.left.px]="device.position?.x || 0"
+          [style.top.px]="device.position?.y || 0"
+          (click)="onDeviceClick(device, $event)"
+          (dblclick)="onDeviceDoubleClick(device)"
+          (mousedown)="onDeviceMouseDown($event, device)"
+          [title]="'Double-click to toggle status. Current: ' + device.status + '. Drag to move.'">
+          
+          <!-- Device Status Indicator -->
+          <div class="device-status-indicator" *ngIf="device.status === 'offline'">
+            <span class="status-icon">⚠️</span>
+          </div>
+
+          <!-- Device Main Card -->
+          <div class="device-main">
+            <div class="device-header">
+              <span class="device-icon">{{ getDeviceIcon(device.type) }}</span>
+              <span class="device-name">{{ device.name }}</span>
+            </div>
+            <div class="device-status" [style.color]="getStatusColor(device.status)">
+              {{ getStatusText(device.status) }}
+            </div>
+          </div>
+
+          <!-- Device Parameters (only show if online) -->
+          <div class="device-parameters" *ngIf="device.status === 'online'">
+            <div class="param-row">
+              <span class="param-label">Ping:</span>
+              <span class="param-value">{{ device.parameters.pingRate }}ms</span>
+            </div>
+            <div class="param-row">
+              <span class="param-label">Latency:</span>
+              <span class="param-value">{{ device.parameters.latency }}ms</span>
+            </div>
+            <div class="param-row">
+              <span class="param-label">Load:</span>
+              <span class="param-value">{{ device.parameters.trafficLoad }}%</span>
+            </div>
+          </div>
+
+          <!-- Device Actions -->
+          <div class="device-actions">
+            <button class="action-btn" (click)="onRemoveDevice(device.id); $event.stopPropagation()" title="Remove device">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Device Configuration Modal -->
+  <div class="modal-overlay" *ngIf="showDeviceModal" (click)="onCloseDeviceModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="selectedDevice">
+      <div class="modal-header">
+        <h3>Device Configuration</h3>
+        <button class="close-btn" (click)="onCloseDeviceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="device-info">
+          <div class="info-row">
+            <label>Name:</label>
+            <input type="text" [(ngModel)]="selectedDevice.name" 
+                   class="device-input">
+          </div>
+          <div class="info-row">
+            <label>Type:</label>
+            <span class="device-type">{{ selectedDevice.type }}</span>
+          </div>
+          <div class="info-row">
+            <label>IP Address:</label>
+            <input type="text" [(ngModel)]="selectedDevice.ipAddress" 
+                   class="device-input">
+          </div>
+          <div class="info-row">
+            <label>Status:</label>
+            <span class="device-status-display" [style.color]="getStatusColor(selectedDevice.status)">
+              {{ getStatusText(selectedDevice.status) }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="parameters-section">
+          <h4>Device Parameters</h4>
+          <div class="param-row">
+            <label>Ping Rate (ms):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.pingRate" 
+                   min="1" max="1000" class="param-input">
+          </div>
+          <div class="param-row">
+            <label>Latency (ms):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.latency" 
+                   min="1" max="100" class="param-input">
+          </div>
+          <div class="param-row">
+            <label>Traffic Load (%):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.trafficLoad" 
+                   min="0" max="100" class="param-input">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="save-btn" (click)="onSaveDeviceConfig()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

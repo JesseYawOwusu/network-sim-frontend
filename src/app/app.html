@@ -1,1 +1,20 @@
-<router-outlet />
+<!-- Network Simulation Lab Application -->
+<div class="app-container">
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title">Network Simulation Lab</h1>
+      <p class="app-subtitle">Critical Device Training Environment</p>
+    </div>
+  </header>
+
+  <nav class="app-navigation">
+    <div class="nav-tabs">
+      <button class="nav-tab" routerLink="/device-simulation" routerLinkActive="active">Device Simulation</button>
+      <button class="nav-tab" routerLink="/scenario-editor" routerLinkActive="active">Scenario Editor</button>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>

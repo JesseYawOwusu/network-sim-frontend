@@ -1,0 +1,143 @@
+<div class="scenario-list">
+  <!-- Header -->
+  <div class="list-header">
+    <div class="header-content">
+      <h1>Saved Scenarios</h1>
+      <p class="header-subtitle">Manage your network simulation scenarios</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" routerLink="/scenario-editor">
+        <span class="btn-icon">➕</span>
+        Create New Scenario
+      </button>
+    </div>
+  </div>
+
+  <!-- Load from File Section -->
+  <div class="load-section">
+    <div class="load-card">
+      <div class="load-content">
+        <div class="load-icon">📁</div>
+        <div class="load-info">
+          <h3>Load Scenario from File</h3>
+          <p>Import a scenario from a JSON file</p>
+        </div>
+      </div>
+      <div class="load-actions">
+        <input 
+          type="file" 
+          id="fileInput" 
+          accept=".json" 
+          (change)="loadScenarioFromFile($event)"
+          style="display: none;"
+        >
+        <label for="fileInput" class="btn btn-secondary">
+          <span class="btn-icon">📂</span>
+          Choose File
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenarios Grid -->
+  <div class="scenarios-section">
+    <div class="section-header">
+      <h2>Your Scenarios ({{ savedScenarios.length }})</h2>
+      <div class="section-actions" *ngIf="savedScenarios.length > 0">
+        <button class="btn btn-danger" (click)="clearAllScenarios()">
+          <span class="btn-icon">🗑️</span>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading scenarios...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && savedScenarios.length === 0">
+      <div class="empty-icon">📋</div>
+      <h3>No scenarios yet</h3>
+      <p>Create your first network simulation scenario to get started</p>
+      <button class="btn btn-primary" routerLink="/scenario-editor">
+        <span class="btn-icon">➕</span>
+        Create Your First Scenario
+      </button>
+    </div>
+
+    <!-- Scenarios Grid -->
+    <div class="scenarios-grid" *ngIf="!isLoading && savedScenarios.length > 0">
+      <div class="scenario-card" *ngFor="let scenario of savedScenarios">
+        <div class="scenario-header">
+          <div class="scenario-title">
+            <h3>{{ scenario.name }}</h3>
+            <div class="scenario-meta">
+              <span 
+                class="difficulty-badge" 
+                [style.background-color]="getDifficultyColor(scenario.difficulty)"
+              >
+                {{ getDifficultyIcon(scenario.difficulty) }} {{ scenario.difficulty }}
+              </span>
+            </div>
+          </div>
+          <div class="scenario-actions">
+            <button class="action-btn edit-btn" (click)="loadScenario(scenario)" title="Edit Scenario">
+              ✏️
+            </button>
+            <button class="action-btn delete-btn" (click)="deleteScenario(scenario)" title="Delete Scenario">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <div class="scenario-content">
+          <div class="scenario-description" *ngIf="scenario.description">
+            <p>{{ scenario.description }}</p>
+          </div>
+          
+          <div class="scenario-stats">
+            <div class="stat-item">
+              <span class="stat-label">Time Limit:</span>
+              <span class="stat-value">{{ scenario.timeLimit }} min</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Passing Score:</span>
+              <span class="stat-value">{{ scenario.passingScore }}%</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Devices:</span>
+              <span class="stat-value">{{ scenario.devices.length }}</span>
+            </div>
+          </div>
+
+          <div class="scenario-devices" *ngIf="scenario.devices.length > 0">
+            <div class="devices-preview">
+              <span class="devices-label">Devices:</span>
+              <div class="device-tags">
+                <span 
+                  class="device-tag" 
+                  *ngFor="let device of scenario.devices.slice(0, 3)"
+                >
+                  {{ device.type }}
+                </span>
+                <span class="more-devices" *ngIf="scenario.devices.length > 3">
+                  +{{ scenario.devices.length - 3 }} more
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scenario-footer">
+          <button class="btn btn-primary full-width" (click)="loadScenario(scenario)">
+            <span class="btn-icon">▶️</span>
+            Open Scenario
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,8 @@
       class="device-item"
       draggable="true"
       (dragstart)="onDragStart($event, deviceType)"
+      (click)="onDeviceClick(deviceType)"
+      title="Click to add {{ deviceType }} to canvas"
     >
       <div class="device-icon">{{ getDeviceIcon(deviceType) }}</div>
       <div class="device-info">

@@ -6,6 +6,8 @@ export interface Scenario {
   name: string;
   difficulty: ScenarioDifficulty;
   timeLimit: number; // in minutes
+  passingScore: number; // percentage
+  description: string;
   devices: Device[];
   connections: Connection[];
 }
