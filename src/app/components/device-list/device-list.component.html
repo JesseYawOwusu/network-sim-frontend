@@ -1,0 +1,19 @@
+<div class="device-list">
+  <h3>Available Devices</h3>
+  <div class="device-items">
+    <div 
+      *ngFor="let deviceType of deviceTypes" 
+      class="device-item"
+      draggable="true"
+      (dragstart)="onDragStart($event, deviceType)"
+      (click)="onDeviceClick(deviceType)"
+      title="Click to add {{ deviceType }} to canvas"
+    >
+      <div class="device-icon">{{ getDeviceIcon(deviceType) }}</div>
+      <div class="device-info">
+        <div class="device-name">{{ deviceType }}</div>
+        <div class="device-description">{{ getDeviceDescription(deviceType) }}</div>
+      </div>
+    </div>
+  </div>
+</div>

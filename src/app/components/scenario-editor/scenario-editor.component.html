@@ -1,0 +1,217 @@
+<div class="scenario-editor">
+  <!-- Scenario Editor Card -->
+  <div class="scenario-card">
+    <div class="card-header">
+      <h2>Scenario Editor</h2>
+    </div>
+    
+    <div class="card-content">
+      <!-- Scenario Details Form -->
+      <div class="form-section">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="scenarioName">Scenario Name</label>
+            <input 
+              type="text" 
+              id="scenarioName" 
+              [(ngModel)]="scenario.name" 
+              placeholder="e.g., Network Outage Response"
+              class="form-input"
+            >
+          </div>
+          <div class="form-group">
+            <label for="timeLimit">Time Limit (minutes)</label>
+            <input 
+              type="number" 
+              id="timeLimit" 
+              [(ngModel)]="scenario.timeLimit" 
+              min="1" 
+              max="120"
+              class="form-input"
+            >
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="difficulty">Difficulty Level</label>
+            <select id="difficulty" [(ngModel)]="scenario.difficulty" class="form-select">
+              <option *ngFor="let difficulty of difficultyOptions" [value]="difficulty">
+                {{ difficulty }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="passingScore">Passing Score (%)</label>
+            <input 
+              type="number" 
+              id="passingScore" 
+              [(ngModel)]="scenario.passingScore" 
+              min="0" 
+              max="100"
+              class="form-input"
+            >
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="description">Scenario Description</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="scenario.description" 
+            rows="3" 
+            placeholder="Describe the training scenario objectives and expected outcomes..."
+            class="form-textarea"
+          ></textarea>
+        </div>
+      </div>
+      
+      <!-- Scenario Devices Section -->
+      <div class="devices-section">
+        <h3>Scenario Devices</h3>
+        <p class="devices-instruction">
+          Click or drag devices from the device palette below to add them to this scenario
+        </p>
+        
+        <!-- Device Palette -->
+        <div class="device-palette">
+          <h4>Available Devices</h4>
+          <p class="palette-instruction">Click or drag devices to add them to the scenario</p>
+          <div class="device-palette-items">
+            <div 
+              class="device-palette-item" 
+              *ngFor="let deviceType of deviceTypes"
+              draggable="true"
+              (dragstart)="onDragStart($event, deviceType)"
+              (click)="onDeviceClick(deviceType)"
+              title="Click to add {{ deviceType }} to scenario"
+            >
+              <div class="device-icon">{{ getDeviceIcon(deviceType) }}</div>
+              <div class="device-type-name">{{ deviceType }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Drop Zone -->
+        <div 
+          class="drop-zone"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event)"
+        >
+          <div class="drop-zone-content">
+            <div class="drop-zone-icon">📥</div>
+            <div class="drop-zone-text">Drop devices here to add to scenario</div>
+          </div>
+        </div>
+        
+        <!-- Device List -->
+        <div class="device-list" *ngIf="scenario.devices.length > 0">
+          <h4>Scenario Devices ({{ scenario.devices.length }})</h4>
+          <div class="device-item" 
+               *ngFor="let device of scenario.devices; trackBy: trackByDeviceId"
+               (click)="onDeviceItemClick(device)"
+               title="Click to configure device parameters">
+            <div class="device-icon">{{ getDeviceIcon(device.type) }}</div>
+            <div class="device-info">
+              <div class="device-name">{{ device.name }}</div>
+              <div class="device-type-tag">{{ device.type }}</div>
+              <div class="device-params" *ngIf="device.parameters">
+                <span class="param">Ping: {{ device.parameters.pingRate }}ms</span>
+                <span class="param">Latency: {{ device.parameters.latency }}ms</span>
+                <span class="param">Load: {{ device.parameters.trafficLoad }}%</span>
+              </div>
+            </div>
+            <div class="device-actions">
+              <button class="configure-btn" (click)="onDeviceItemClick(device); $event.stopPropagation()" title="Configure device">
+                ⚙️
+              </button>
+              <button class="remove-device-btn" (click)="removeDeviceFromScenario(device); $event.stopPropagation()" title="Remove device">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Card Actions -->
+    <div class="card-actions">
+      <button class="btn btn-secondary" routerLink="/scenario-list">
+        <span class="btn-icon">📋</span>
+        Back to Scenarios
+      </button>
+      <button class="btn btn-secondary" (click)="clearScenario()">Clear</button>
+      <button class="btn btn-primary" (click)="saveScenario()" [disabled]="isSaving">
+        <span class="btn-icon">💾</span>
+        {{ isSaving ? (saveStep || 'Saving...') : 'Save to List' }}
+      </button>
+      <button class="btn btn-success" (click)="exportScenario()">
+        <span class="btn-icon">📤</span>
+        Export Backup
+      </button>
+    </div>
+  </div>
+  
+  <!-- Error Messages -->
+  <div class="error-message" *ngIf="saveError">
+    <p>Error: {{ saveError }}</p>
+  </div>
+  
+  <!-- Device Configuration Modal -->
+  <div class="modal-overlay" *ngIf="showDeviceConfigModal" (click)="onCloseDeviceConfigModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="selectedDevice">
+      <div class="modal-header">
+        <h3>Configure Device: {{ selectedDevice.name }}</h3>
+        <button class="close-btn" (click)="onCloseDeviceConfigModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="device-info">
+          <div class="info-row">
+            <label>Device Name:</label>
+            <input type="text" [(ngModel)]="selectedDevice.name" class="device-input">
+          </div>
+          <div class="info-row">
+            <label>Device Type:</label>
+            <span class="device-type">{{ selectedDevice.type }}</span>
+          </div>
+          <div class="info-row">
+            <label>IP Address:</label>
+            <input type="text" [(ngModel)]="selectedDevice.ipAddress" class="device-input">
+          </div>
+          <div class="info-row">
+            <label>Status:</label>
+            <select [(ngModel)]="selectedDevice.status" class="device-select">
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="parameters-section">
+          <h4>Device Parameters</h4>
+          <div class="param-row">
+            <label>Ping Rate (ms):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.pingRate" 
+                   min="1" max="1000" class="param-input">
+          </div>
+          <div class="param-row">
+            <label>Latency (ms):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.latency" 
+                   min="1" max="100" class="param-input">
+          </div>
+          <div class="param-row">
+            <label>Traffic Load (%):</label>
+            <input type="number" [(ngModel)]="selectedDevice.parameters.trafficLoad" 
+                   min="0" max="100" class="param-input">
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="onCloseDeviceConfigModal()">Cancel</button>
+          <button class="btn btn-primary" (click)="onSaveDeviceConfig()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

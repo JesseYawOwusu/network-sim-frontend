@@ -3,35 +3,57 @@
  * Centralized location for all backend API routes
  */
 
+// Backend base URL
+export const BACKEND_BASE_URL = 'https://qtzbtx6k-3000.uks1.devtunnels.ms';
+
+// Default user ID for API calls (can be made configurable later)
+export const DEFAULT_USER_ID = '2';
+
 export const API_ENDPOINTS = {
   // Device endpoints
   DEVICES: {
-    BASE: 'api/devices',
-    BY_ID: (id: string) => `api/devices/${id}`,
-    CREATE: 'api/devices',
-    UPDATE: (id: string) => `api/devices/${id}`,
-    DELETE: (id: string) => `api/devices/${id}`
+    BASE: `${BACKEND_BASE_URL}/api/devices`,
+    BY_ID: (id: string) => `${BACKEND_BASE_URL}/api/devices/${id}`,
+    CREATE: `${BACKEND_BASE_URL}/api/devices`,
+    UPDATE: (id: string) => `${BACKEND_BASE_URL}/api/devices/${id}`,
+    DELETE: (id: string) => `${BACKEND_BASE_URL}/api/devices/${id}`
   },
 
   // Connection endpoints
   CONNECTIONS: {
-    BASE: '/connections',
-    BY_ID: (id: string) => `/connections/${id}`,
-    CREATE: '/connections',
-    UPDATE: (id: string) => `/connections/${id}`,
-    DELETE: (id: string) => `/connections/${id}`,
-    BETWEEN_DEVICES: (fromId: string, toId: string) => `/connections/between/${fromId}/${toId}`
+    BASE: `${BACKEND_BASE_URL}/connections`,
+    BY_ID: (id: string) => `${BACKEND_BASE_URL}/connections/${id}`,
+    CREATE: `${BACKEND_BASE_URL}/connections`,
+    UPDATE: (id: string) => `${BACKEND_BASE_URL}/connections/${id}`,
+    DELETE: (id: string) => `${BACKEND_BASE_URL}/connections/${id}`,
+    BETWEEN_DEVICES: (fromId: string, toId: string) => `${BACKEND_BASE_URL}/connections/between/${fromId}/${toId}`
   },
 
   // Network topology endpoints
   TOPOLOGY: {
-    BASE: '/topology',
-    FULL: '/topology/full'
+    BASE: `${BACKEND_BASE_URL}/topology`,
+    FULL: `${BACKEND_BASE_URL}/topology/full`
+  },
+
+  // Scenario endpoints - Updated to match working backend structure
+  SCENARIOS: {
+    BASE: `${BACKEND_BASE_URL}/api/scenarios`,
+    BY_ID: (id: string) => `${BACKEND_BASE_URL}/api/scenario/${id}`,
+    CREATE: `${BACKEND_BASE_URL}/api/scenarios`,
+    UPDATE: (id: string) => `${BACKEND_BASE_URL}/api/scenario/${id}`,
+    DELETE: (id: string) => `${BACKEND_BASE_URL}/api/scenario/${id}`,
+    // User-specific scenario endpoints
+    USER_SCENARIOS: (userId: string) => `${BACKEND_BASE_URL}/api/user/${userId}/scenarios`,
+    USER_CREATE: (userId: string) => `${BACKEND_BASE_URL}/api/user/${userId}/scenarios`,
+    // Layout management endpoints
+    SAVE_LAYOUT: (id: string) => `${BACKEND_BASE_URL}/api/scenario/${id}/save-layout`,
+    // Simulation endpoints
+    SIMULATE: (id: string) => `${BACKEND_BASE_URL}/api/scenario/${id}/simulate`
   },
 
   // Health check
-  HEALTH: '/health',
-  VERSION: '/version'
+  HEALTH: `${BACKEND_BASE_URL}/`,
+  VERSION: `${BACKEND_BASE_URL}/version`
 } as const;
 
 /**
