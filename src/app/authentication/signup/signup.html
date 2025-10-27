@@ -1,0 +1,59 @@
+<div class="h-screen flex items-center justify-center overflow-hidden scrollbar-hide ">
+<div class="flex gap-10 justify-evenly items-center overflow-hidden w-[90%]  rounded-2xl">
+    <swal
+        #errorSwal
+        title="An Error occured in Signup"
+        icon="error"
+        position="top"
+        [showConfirmButton]="false"
+        [timer]="1000"
+        width="600"
+        
+        >
+        <div *swalPortal="swalTargets.title">
+            <p>{{errorMessage}}</p>
+        </div>
+    </swal>
+    <div class="hidden min-lg:grid w-[50%] bg-white">
+        <div class="flex gap-5 font-bold justify-center items-center text-3xl mb-5 ">
+            <p>Connect.</p>
+            <p class="text-teal-600 font-bold">Simulate.</p>
+            <p>Innovate.</p>
+        </div>
+        <div class="flex justify-center items-center">
+            <img src="assets/network.png" alt="Network simulation"/>
+
+        </div>
+        <p class="text-center text-md">Your gateway to smarter network simulations.</p>
+    </div>
+    <div class="grid justify-center items-center  bg-gray-50 lg:w-[50%] sm:w-full">
+    <form [formGroup]="signupForm" (ngSubmit)="submitSignup()" class=" grid w-contain sm:w-full gap-10 bg-white p-10  rounded-2xl shadow-lg shadow-gray-300 mt-96 mb-96" >
+        <div class="pl-10 pr-10 grid gap-2">
+            <p class="text-teal-600 font-bold lg:text-2xl sm:text-xl text-center cursor-pointer">Create Account</p>
+            <p class="text-center text-sm">Sign up to power your next network model</p>
+        </div>
+        
+        <div class="grid gap-10 p-5 pb-0 ">
+                <app-input-component [controlName]="signupForm.controls.username" label="Username"></app-input-component>
+                <app-input-component [controlName]="signupForm.controls.email" label="Email"></app-input-component>
+                <app-input-component [controlName]="signupForm.controls.password" label="Password"></app-input-component>
+                <div>
+                <app-input-component [controlName]="signupForm.controls.confirmPassword" label="Confirm Password"></app-input-component>
+                @if((signupForm.errors?.['passwordMismatch']==true)){
+                    <p class=" text-red-700 text-sm italic">Passwords do not match</p>
+                }
+                </div>
+                
+        </div>
+
+        <div class="cursor-pointer">
+            
+            <button type="submit" [disabled]="signupForm.invalid" [class]="signupForm.invalid ? 'bg-teal-600/[40%] rounded-md p-2 mt-0 w-13/14 m-3 text-black/[30%]': 'text-white bg-teal-600 rounded-md p-2 mt-0 w-13/14 m-3'"> Sign Up</button>
+            <p class="text-center font-light mt-0">Already have an account? <span [routerLink]="['/auth/login']" class="text-teal-300">Login</span></p>
+        </div>
+        </form>
+        </div>
+ 
+</div>
+
+</div>
